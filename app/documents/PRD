@@ -1,0 +1,125 @@
+# Product Requirements Document (PRD)
+
+## Project Title: Small Business Budgeting & Risk Analysis Platform
+**Document Version:** 1.0  
+**Target Execution Agent:** Devin AI  
+
+---
+
+## 1. Product Overview & Core Vision
+
+### 1.1 Product Statement
+A web-based financial planning, budgeting, and risk analysis platform built specifically for small business owners. The application simplifies complex financial analysis by allowing users to upload financial documents (like PDFs) or input parameters manually (revenue, COGS, rent, taxes, payroll, expenses). 
+
+Beyond basic tracking, the platform allows business owners to define specific growth goals (e.g., hiring staff, expanding, launching marketing campaigns) and dynamically adjusts financial projections, evaluates operational risks, and provides actionable advice.
+
+### 1.2 Target Audience
+* **Primary Users:** Small business owners, sole proprietors, independent contractors, and startup founders.
+* **User Characteristics:** Non-financial experts who need clear, approachable insights without high-level financial jargon or intimidating spreadsheet layouts.
+
+---
+
+## 2. User Journey & Key Screen Specifications
+### Screen 1: Welcome Page (`/`)
+* **Goal:** Introduce the application's value proposition and prompt authentication.
+* **Key Features:**
+  * Headline highlighting effortless business budgeting and goal planning.
+  * Call-To-Action (CTA) button directing to `/login`.
+
+### Screen 2: Login / Registration (`/login`)
+* **Goal:** Secure account access for returning users and account creation for new users.
+* **Key Features:**
+  * Email and Password fields.
+  * Toggle between Login and Sign Up.
+  * Submission triggers routing to `/verify` (for new signups) or `/dashboard`.
+
+### Screen 3: Verification Page (`/verify`)
+* **Goal:** Confirm user identity via email link or verification code.
+* **Key Features:**
+  * One-Time Password (OTP) or verification status feedback card.
+  * Success state routes directly to `/dashboard`.
+
+### Screen 4: Dashboard (`/dashboard`)
+* **Goal:** Serve as the command center displaying high-level financial health and quick action triggers.
+* **Key Features:**
+  * Summary cards (Total Revenue, Total Expenses, Net Margin, Current Risk Level).
+  * Navigation link / CTA to launch the Financial & Goal Input flow.
+
+### Screen 5: Financial Data & Goal Input (`/input`)
+* **Goal:** Capture raw financial data and target business growth goals.
+* **Input Method A (PDF Processing):**
+  * File uploader supporting bank/financial PDFs.
+  * Automatic parsing into structured fields with editable preview fields.
+* **Input Method B (Manual Entry):**
+  * Form fields for key financial metrics:
+    * Revenue (Monthly / Annual)
+    * Cost of Goods Sold (COGS)
+    * Rent & Utilities
+    * Payroll & Taxes
+    * Miscellaneous Overhead
+* **Goal Definition Engine:**
+  * Dropdown selector for Goal Type:
+    * Business Growth (Target % or $)
+    * Profit Margin Target
+    * Headcount Expansion (New Employees)
+    * Facility / Renovation Expenses
+    * Marketing Campaign Project
+  * Parameters: Target dollar amount, timeline (months), estimated ongoing cost.
+
+### Screen 6: Results & Advisory Page (`/results`)
+* **Goal:** Present risk scoring, post-goal financial forecasts, and contextual strategic advice.
+* **Key Features:**
+  * **Risk Scorecard:** visual risk gauge (Low, Moderate, High, Critical) calculated from cash flow buffers vs. fixed expenses.
+  * **Adjusted Budget Plan:** Dynamic comparison table showing current baseline vs. post-goal projections.
+  * **Strategic Advice Box:** Contextual guidance covering risk factors, operational logistics, and safety margins for the user's selected goal.
+
+---
+
+## 3. Functional Requirements & Business Logic
+
+### 3.05 Data from Image
+The application must be able to:
+* Use an image given from the user (pdf, jpg, etc) to collect important financial figures (Revenue, COGS, operating costs, rent, taxes, employee wages, owner's salary, personal contributions, and more that would be required to create an accurate budget) solely off of the image.
+
+### 3.1 Financial Calculation Engine
+The application must compute the following baseline figures upon data entry:
+* $\text{Gross Profit} = \text{Revenue} - \text{COGS}$
+* $\text{Total Operating Expenses (OpEx)} = \text{Rent} + \text{Taxes/Payroll} + \text{Other Overhead}$
+* $\text{Net Income} = \text{Gross Profit} - \text{OpEx}$
+* $\text{Burn Rate / Safety Buffer} = \frac{\text{Cash Reserves}}{\text{Monthly OpEx}}$
+
+### 3.2 Risk Engine Logic
+* **Low Risk:** Net profit margin $> 20\%$ after applying goal expenses; safety buffer $> 6$ months.
+* **Moderate Risk:** Net profit margin between $5\%$ and $20\%$; safety buffer $3\text{--}6$ months.
+* **High Risk:** Net profit margin $< 5\%$ or safety buffer $< 3$ months.
+* **Critical Risk:** Negative cash flow post-goal implementation.
+
+### 3.3 Goal Impact Adjustments
+When a goal is applied, the backend calculation must:
+1. Deduct upfront goal costs (e.g., renovations, initial marketing deposit) from cash reserves or amortize over the target timeline.
+2. Increment ongoing monthly expenses (e.g., new employee salary + taxes).
+3. Recalculate net margin and output updated risk classification.
+
+---
+
+## 4. Technical Stack & Architectural Guidelines
+
+* **Framework:** Next.js (App Router preferred)
+* **Styling:** CSS Modules or Tailwind CSS (no external component frameworks like MUI or AntD).
+* **Platform Priority:** Desktop-First Web App.
+* **Data Storage / Mocking:** Initial phase can use local state / mock JSON fixtures for risk evaluation and PDF parsing routines before full backend/database wiring.
+
+---
+
+## 5. Non-Functional Requirements & Interactive States
+
+* **Loading UI:** Display custom SVG loader during PDF parsing or goal calculation with context text (*"Evaluating cash flow safety margins..."*).
+* **Error Handling:** Form fields must show inline validation. PDF upload failures or unsupported formats must trigger top-anchored banner notifications.
+* **Performance:** PDF parsing or goal calculation visual feedback must render in under 2 seconds.
+
+---
+
+## 6. Out of Scope for Phase 1
+* Multi-currency conversion (US Dollar default).
+* Complex interactive chart libraries (keep tables and card-based metrics primary).
+* Native mobile apps (web application only).

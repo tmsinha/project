@@ -1,0 +1,100 @@
+# UI/UX Specification Document (`UI_SPEC.md`)
+
+## 1. Executive Summary & Brand Identity
+* **App Purpose:** A financial budgeting, risk analysis, and goal-tracking web application for small businesses.
+* **Target Audience:** Small business owners needing intuitive financial insights and guidance.
+* **Visual Vibe:** Warm, approachable, clean, and slightly minimalist. Professional and reassuring without feeling overly corporate or intimidating.
+
+---
+
+## 2. Tech Stack & Styling Architecture
+* **Framework:** Next.js (App Router preferred)
+* **Component Libraries:** None (Use raw CSS Modules or Tailwind CSS for layout and styling)
+* **Icon Sets:** None required for initial phase. Use clean typography or standard SVG placeholders if necessary.
+* **Platform Priority:** Desktop-first web application.
+
+---
+
+## 3. Design System & Theme Tokens
+
+### Color Palette (Light Mode Default)
+* **Primary (Blueish):** `#2B6CB0` / `hsl(211, 60%, 43%)` *(Buttons, active nav links, key CTA elements)*
+* **Secondary (Lavender):** `#9F7AEA` / `hsl(269, 67%, 69%)` *(Accents, subtle backgrounds, goal highlights)*
+* **Background:** `#FFFFFF` *(Main canvas)*
+* **Surface/Cards:** `#F7FAFC` *(Subtle contrast containers for financial modules)*
+* **Text Primary:** `#1A202C` *(High readability dark gray)*
+* **Text Secondary:** `#718096` *(Labels, helper text)*
+* **Error State:** `#E53E3E` *(Banners and inline error feedback)*
+
+### Typography
+* **Font Style:** Classic with sharper edges, clean and highly readable.
+* **Font Stack:** Next.js Google Font (`Merriweather` or `Georgia` for headers; `Inter` or standard sharp sans for body text/data tables).
+* **Headings:** Bold, sharp serifs for authority and classic feel.
+* **Data/Numbers:** Clean, tabular alignment for financial readability.
+
+---
+
+## 4. Global Navigation & Layout
+* **Header / Top Navbar:**
+  * Fixed or sticky top bar containing:
+    * App Logo/Name (Left)
+    * Navigation Links (Center/Right): *Dashboard*, *Input Data*, *Results & Goals*
+    * User Profile / Logout (Far Right)
+* **Layout Grid:** Standard centered layout max-width (e.g., `max-w-7xl`) with generous padding to maintain the minimalist aesthetic.
+
+---
+
+## 5. View Architecture & Key Screens
+
+### 1. Welcome Page (`/`)
+* **Purpose:** High-level introduction to the tool for small business owners.
+* **Elements:** Hero section explaining value proposition, quick "Get Started" CTA button leading to Login/Registration.
+
+### 2. Login Page (`/login`)
+* **Purpose:** Secure user authentication access.
+* **Elements:** Minimalist card layout with email/password inputs, clear primary button, link to registration.
+
+### 3. Verification Page (`/verify`)
+* **Purpose:** Multi-factor or email confirmation state.
+* **Elements:** Single focused form card with OTP or link confirmation message.
+
+### 4. Input Page / Module (`/input` or Embedded Dashboard Drawer)
+* **Purpose:** Collecting financial inputs (PDF upload or manual fields).
+* **Key Fields Needed:**
+  * Revenue
+  * Cost of Goods Sold (COGS)
+  * Rent & Utilities
+  * Taxes & Payroll
+  * Additional Custom Expenses
+* **Goal Setting Form Section:**
+  * Goal Type Selector: *Growth, Profit Target, Employee Count, Renovations, Marketing Project*
+  * Goal Target Amount & Timeline.
+
+### 5. Dashboard View (`/dashboard`)
+* **Purpose:** Core hub summarizing financial status and key metrics at a glance.
+* **Elements:** Summary widgets, quick-access input CTA, recent input overview.
+
+### 6. Results & Advice Page (`/results`)
+* **Purpose:** Display financial risk analysis, adjusted budget, and strategic advice.
+* **Elements:**
+  * **Risk Scorecard:** Visual indicator highlighting financial safety vs risk level.
+  * **Adjusted Budget Plan:** Formatted financial table displaying post-goal projection.
+  * **Logistics & Risk Advice Box:** Dedicated highlight box (using secondary lavender border/accent) offering contextual tips.
+
+---
+
+## 6. Interactive States & Component Behaviors
+
+### Error States
+* **Global/Form Banners:** Top-anchored banner notification with soft red background (`#FFF5F5`) and crisp red text (`#E53E3E`).
+* **Field Errors:** Highlight active input border in red with small helper text below.
+
+### Loading States
+* **Custom Illustrated Loader:** Place an SVG/custom graphic component center-screen during PDF parsing, goal calculation, and risk assessment workflows. Include descriptive loading text (e.g., *"Analyzing financial risk parameters..."*).
+
+---
+
+## 7. Strict Guidelines for Devin (AI Agent)
+1. **No External Component Frameworks:** Build raw components using custom styles or utility CSS. Do not install standard UI kits (like Material UI or Radix) unless instructed.
+2. **Keep Desktop Layout Front & Center:** Focus on wide desktop views first, keeping tables and inputs spacious.
+3. **Strict Color Adherence:** Use the blueish primary and lavender secondary accents strictly for emphasis and interactive states—keep the rest of the canvas bright and white.

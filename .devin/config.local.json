@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(npm run)",
+      "Exec(npm install)",
+      "Exec(New-Item)",
+      "Exec(ls)",
+      "Exec(Get-ChildItem)",
+      "Exec(taskkill)"
+    ]
+  }
+}

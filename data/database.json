@@ -1,0 +1,120 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "tavishmsinha@gmail.com",
+      "created_at": "2026-07-26T22:06:25.752Z"
+    },
+    {
+      "id": 2,
+      "email": "tmsinha@outlook.com",
+      "created_at": "2026-07-26T22:06:32.843Z"
+    }
+  ],
+  "verification_codes": [
+    {
+      "id": 1,
+      "email": "tavishmsinha@gmail.com",
+      "code": "192498",
+      "expires_at": "2026-07-26T22:21:25.748Z",
+      "used": false,
+      "created_at": "2026-07-26T22:06:25.756Z"
+    },
+    {
+      "id": 2,
+      "email": "tmsinha@outlook.com",
+      "code": "668033",
+      "expires_at": "2026-07-26T22:21:32.843Z",
+      "used": false,
+      "created_at": "2026-07-26T22:06:32.844Z"
+    },
+    {
+      "id": 3,
+      "email": "tmsinha@outlook.com",
+      "code": "273972",
+      "expires_at": "2026-07-26T22:25:01.658Z",
+      "used": false,
+      "created_at": "2026-07-26T22:10:01.658Z"
+    },
+    {
+      "id": 4,
+      "email": "tmsinha@outlook.com",
+      "code": "538367",
+      "expires_at": "2026-07-26T22:26:50.334Z",
+      "used": false,
+      "created_at": "2026-07-26T22:11:50.339Z"
+    },
+    {
+      "id": 5,
+      "email": "tmsinha@outlook.com",
+      "code": "629731",
+      "expires_at": "2026-07-26T22:28:00.344Z",
+      "used": false,
+      "created_at": "2026-07-26T22:13:00.344Z"
+    },
+    {
+      "id": 6,
+      "email": "tmsinha@outlook.com",
+      "code": "103154",
+      "expires_at": "2026-07-26T22:28:50.214Z",
+      "used": false,
+      "created_at": "2026-07-26T22:13:50.219Z"
+    },
+    {
+      "id": 7,
+      "email": "tmsinha@outlook.com",
+      "code": "430289",
+      "expires_at": "2026-07-26T22:29:51.905Z",
+      "used": true,
+      "created_at": "2026-07-26T22:14:51.910Z"
+    },
+    {
+      "id": 8,
+      "email": "tmsinha@outlook.com",
+      "code": "394866",
+      "expires_at": "2026-07-26T22:31:24.861Z",
+      "used": true,
+      "created_at": "2026-07-26T22:16:24.866Z"
+    },
+    {
+      "id": 9,
+      "email": "tavishmsinha@gmail.com",
+      "code": "123698",
+      "expires_at": "2026-07-26T22:35:36.514Z",
+      "used": true,
+      "created_at": "2026-07-26T22:20:36.517Z"
+    },
+    {
+      "id": 10,
+      "email": "tmsinha@outlook.com",
+      "code": "924772",
+      "expires_at": "2026-07-27T17:27:42.967Z",
+      "used": true,
+      "created_at": "2026-07-27T17:12:42.971Z"
+    },
+    {
+      "id": 11,
+      "email": "tmsinha@outlook.com",
+      "code": "915736",
+      "expires_at": "2026-07-28T18:58:12.120Z",
+      "used": true,
+      "created_at": "2026-07-28T18:43:12.136Z"
+    },
+    {
+      "id": 12,
+      "email": "tmsinha@outlook.com",
+      "code": "625718",
+      "expires_at": "2026-07-29T18:41:11.778Z",
+      "used": true,
+      "created_at": "2026-07-29T18:26:11.784Z"
+    },
+    {
+      "id": 13,
+      "email": "tmsinha@outlook.com",
+      "code": "514846",
+      "expires_at": "2026-07-29T18:48:22.347Z",
+      "used": true,
+      "created_at": "2026-07-29T18:33:22.390Z"
+    }
+  ]
+}
