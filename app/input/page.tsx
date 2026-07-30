@@ -63,6 +63,8 @@ export default function InputPage() {
   const [goalType, setGoalType] = useState('')
   const [goalAmount, setGoalAmount] = useState('')
   const [goalTimeline, setGoalTimeline] = useState('')
+  const [customGoal, setCustomGoal] = useState('')
+  const [isAnalyzingGoal, setIsAnalyzingGoal] = useState(false)
 
   const [file, setFile] = useState<File | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -198,6 +200,68 @@ export default function InputPage() {
     }
   }
 
+  const handleAnalyzeCustomGoal = async () => {
+    if (!customGoal.trim()) {
+      setError('Please enter a custom goal description')
+      return
+    }
+
+    setIsAnalyzingGoal(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Analyze this business goal and extract structured information. Respond with JSON only, no markdown. Goal: "${customGoal}"
+          
+          Extract:
+          - goalType: categorize as "growth", "profit", "employees", "renovations", "marketing", "continuity", or "other"
+          - goalAmount: estimated cost in numbers (extract numbers from description)
+          - goalTimeline: estimated timeline in months (extract numbers or infer from context)
+          - description: brief summary of the goal
+          
+          If any information is unclear or not provided, use reasonable estimates based on typical business scenarios.`
+        }),
+      })
+
+      const data = await response.json()
+      
+      if (data.response) {
+        try {
+          // Try to parse JSON from the response
+          const jsonMatch = data.response.match(/\{[\s\S]*\}/)
+          if (jsonMatch) {
+            const parsedGoal = JSON.parse(jsonMatch[0])
+            
+            // Auto-fill the form with extracted data
+            setGoalType(parsedGoal.goalType || 'other')
+            setGoalAmount(parsedGoal.goalAmount?.toString() || '')
+            setGoalTimeline(parsedGoal.goalTimeline?.toString() || '')
+            
+            // Show success message
+            setError(null)
+          } else {
+            // If no JSON found, try to extract information from text
+            setError('Could not parse goal details. Please enter manually.')
+          }
+        } catch (parseError) {
+          setError('Could not parse goal details. Please enter manually.')
+        }
+      } else {
+        setError('Failed to analyze custom goal')
+      }
+    } catch (err) {
+      setError('An error occurred during goal analysis')
+      console.error(err)
+    } finally {
+      setIsAnalyzingGoal(false)
+    }
+  }
+
   const handleCalculate = () => {
     // Validate all periods have required fields
     for (const period of periods) {
@@ -213,6 +277,9 @@ export default function InputPage() {
       setError('Please fill in all goal information fields')
       return
     }
+
+    // Handle custom goal type
+    const finalGoalType = goalType === 'other' && customGoal ? 'custom' : goalType
 
     try {
       // Convert all periods to TimePeriodData
@@ -275,9 +342,10 @@ export default function InputPage() {
       }
 
       const goalInputs: GoalInputs = {
-        goalType: goalType as any,
+        goalType: finalGoalType as any,
         goalAmount: goalAmountNum,
-        goalTimeline: goalTimelineNum
+        goalTimeline: goalTimelineNum,
+        customDescription: goalType === 'other' && customGoal ? customGoal : undefined
       }
 
       // Add goal inputs to each period
@@ -331,7 +399,14 @@ export default function InputPage() {
   const currentPeriod = periods.find(p => p.id === currentPeriodId) || periods[0]
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-10 blur-2xl"></div>
+      </div>
+
       {isAnalyzing && (
         <IllustratedLoader message="Analyzing financial document..." />
       )}
@@ -343,14 +418,14 @@ export default function InputPage() {
         />
       )}
       
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Input Financial Data</h1>
           <p className="text-[#718096]">Enter your business financial information across multiple time periods and set your goals</p>
         </div>
 
         {/* Period Selector */}
-        <div className="mb-6 bg-[#F7FAFC] rounded-xl p-4 border border-gray-200">
+        <div className="mb-6 bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <label className="text-sm font-semibold text-[#1A202C]">Time Period:</label>
@@ -359,10 +434,10 @@ export default function InputPage() {
                   <button
                     key={period.id}
                     onClick={() => handlePeriodChange(period.id)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                       currentPeriodId === period.id
-                        ? 'bg-[#2B6CB0] text-white'
-                        : 'bg-white text-[#1A202C] border border-gray-300 hover:bg-gray-50'
+                        ? 'bg-gradient-to-r from-[#2B6CB0] to-[#4299E1] text-white shadow-md'
+                        : 'bg-white text-[#1A202C] border border-gray-300 hover:bg-gray-50 hover:border-blue-300'
                     }`}
                   >
                     {period.periodValue}
@@ -373,14 +448,14 @@ export default function InputPage() {
             <div className="flex gap-2">
               <button
                 onClick={addPeriod}
-                className="px-4 py-2 bg-[#48BB78] hover:bg-[#38A169] text-white font-semibold rounded-lg transition-colors text-sm"
+                className="px-4 py-2 bg-gradient-to-r from-[#48BB78] to-[#38A169] hover:from-[#38A169] hover:to-[#2F855A] text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg text-sm transform hover:scale-105"
               >
                 + Add Period
               </button>
               {periods.length > 1 && (
                 <button
                   onClick={() => removePeriod(currentPeriodId)}
-                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors text-sm"
+                  className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg text-sm transform hover:scale-105"
                 >
                   Remove Period
                 </button>
@@ -391,7 +466,7 @@ export default function InputPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Financial Inputs */}
-          <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
               <h2 className="text-xl font-semibold text-[#1A202C]">
                 Financial Information - {currentPeriod.periodValue}
@@ -401,7 +476,7 @@ export default function InputPage() {
                   name="periodType"
                   value={currentPeriod.periodType}
                   onChange={handleInputChange}
-                  className="px-3 py-2 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all text-sm"
+                  className="px-3 py-2 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all text-sm shadow-sm"
                 >
                   <option value="month">Month</option>
                   <option value="quarter">Quarter</option>
@@ -413,13 +488,13 @@ export default function InputPage() {
                   value={currentPeriod.periodValue}
                   onChange={handleInputChange}
                   placeholder="e.g., January 2024"
-                  className="px-3 py-2 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all text-sm w-40"
+                  className="px-3 py-2 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all text-sm w-40 shadow-sm"
                 />
               </div>
             </div>
 
             {/* File Upload Section */}
-            <div className="mb-6 p-4 bg-white rounded-lg border border-gray-200">
+            <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
               <label className="block text-sm font-semibold text-[#1A202C] mb-2">
                 Upload Financial Document (PDF, Image)
               </label>
@@ -429,20 +504,23 @@ export default function InputPage() {
                   id="financialDocument"
                   accept=".pdf,.jpg,.jpeg,.png,.tiff"
                   onChange={handleFileChange}
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all text-sm"
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all text-sm shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={handleAnalyzeImage}
                   disabled={!file || isAnalyzing}
-                  className="px-4 py-2 bg-[#9F7AEA] hover:bg-[#805AD5] text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  className="px-4 py-2 bg-gradient-to-r from-[#9F7AEA] to-[#B794F4] hover:from-[#805AD5] hover:to-[#9F7AEA] text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-md hover:shadow-lg transform hover:scale-105"
                 >
                   Analyze
                 </button>
               </div>
               {analysisResult && (
-                <div className="mt-2 text-xs text-[#718096]">
-                  ✓ Document analyzed successfully. Data has been auto-filled below.
+                <div className="mt-2 text-xs text-[#718096] flex items-center gap-1">
+                  <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Document analyzed successfully. Data has been auto-filled below.
                 </div>
               )}
             </div>
@@ -458,7 +536,7 @@ export default function InputPage() {
                   name="timePeriod"
                   value={currentPeriod.timePeriod}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 >
                   <option value="monthly">Monthly Data</option>
                   <option value="quarterly">Quarterly Data</option>
@@ -477,7 +555,7 @@ export default function InputPage() {
                   value={currentPeriod.revenue}
                   onChange={handleInputChange}
                   placeholder="Enter total revenue"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 />
               </div>
 
@@ -492,7 +570,7 @@ export default function InputPage() {
                   value={currentPeriod.cogs}
                   onChange={handleInputChange}
                   placeholder="Enter COGS"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 />
               </div>
 
@@ -511,7 +589,7 @@ export default function InputPage() {
                       value={currentPeriod.rent}
                       onChange={handleInputChange}
                       placeholder="Enter rent cost"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                     />
                   </div>
 
@@ -526,7 +604,7 @@ export default function InputPage() {
                       value={currentPeriod.utilities}
                       onChange={handleInputChange}
                       placeholder="Enter utilities cost"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                     />
                   </div>
 
@@ -541,7 +619,7 @@ export default function InputPage() {
                       value={currentPeriod.otherFacilityCosts}
                       onChange={handleInputChange}
                       placeholder="Insurance, maintenance, etc."
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -562,7 +640,7 @@ export default function InputPage() {
                       value={currentPeriod.numberOfEmployees}
                       onChange={handleInputChange}
                       placeholder="Enter number of employees"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                     />
                   </div>
 
@@ -577,7 +655,7 @@ export default function InputPage() {
                       value={currentPeriod.personalSalary}
                       onChange={handleInputChange}
                       placeholder="Enter personal salary"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                     />
                   </div>
 
@@ -592,7 +670,7 @@ export default function InputPage() {
                       value={currentPeriod.otherPayrollExpenses}
                       onChange={handleInputChange}
                       placeholder="Benefits, taxes, contractor fees"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                     />
                   </div>
                 </div>
@@ -610,7 +688,7 @@ export default function InputPage() {
                   value={currentPeriod.taxes}
                   onChange={handleInputChange}
                   placeholder="Enter tax expenses"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 />
               </div>
 
@@ -625,7 +703,7 @@ export default function InputPage() {
                   value={currentPeriod.customExpenses}
                   onChange={handleInputChange}
                   placeholder="Enter any additional expenses"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 />
               </div>
 
@@ -640,14 +718,14 @@ export default function InputPage() {
                   value={currentPeriod.cashReserves}
                   onChange={handleInputChange}
                   placeholder="Enter current cash reserves"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* Goal Setting */}
-          <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
             <h2 className="text-xl font-semibold text-[#1A202C] mb-6 pb-4 border-b border-gray-200">
               Goal Setting
             </h2>
@@ -661,7 +739,7 @@ export default function InputPage() {
                   id="goalType"
                   value={goalType}
                   onChange={(e) => setGoalType(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 >
                   <option value="">Select a goal type</option>
                   <option value="growth">Growth</option>
@@ -669,8 +747,70 @@ export default function InputPage() {
                   <option value="employees">Employee Count</option>
                   <option value="renovations">Renovations</option>
                   <option value="marketing">Marketing Project</option>
+                  <option value="continuity">Business Continuity</option>
+                  <option value="other">Custom Goal</option>
                 </select>
               </div>
+
+              {/* Custom Goal Input Section */}
+              {goalType === 'other' && (
+                <div className="pt-4 border-t border-gray-200">
+                  <label htmlFor="customGoal" className="block text-sm font-semibold text-[#1A202C] mb-2">
+                    Describe Your Custom Goal
+                  </label>
+                  <textarea
+                    id="customGoal"
+                    value={customGoal}
+                    onChange={(e) => setCustomGoal(e.target.value)}
+                    placeholder="Describe your business goal in detail (e.g., 'I want to expand to a second location in 18 months with an estimated cost of $150,000')"
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm resize-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAnalyzeCustomGoal}
+                    disabled={!customGoal.trim() || isAnalyzingGoal}
+                    className="mt-3 px-4 py-2 bg-gradient-to-r from-[#9F7AEA] to-[#B794F4] hover:from-[#805AD5] hover:to-[#9F7AEA] text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2"
+                  >
+                    {isAnalyzingGoal ? (
+                      <>
+                        <svg className="h-4 w-4 text-white" style={{ animation: 'spin 1s linear infinite' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Analyzing Goal...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Auto-Fill with AI
+                      </>
+                    )}
+                  </button>
+                  <p className="mt-2 text-xs text-[#718096]">
+                    AI will analyze your description and automatically fill in the goal amount and timeline.
+                  </p>
+                </div>
+              )}
+
+              {/* Business Continuity Specific Info */}
+              {goalType === 'continuity' && (
+                <div className="pt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <div>
+                      <h4 className="text-sm font-semibold text-[#1A202C] mb-1">Business Continuity Goal</h4>
+                      <p className="text-xs text-[#718096]">
+                        This goal focuses on maintaining operational stability and financial reserves to keep your business running through challenging periods. The analysis will prioritize safety buffers and cash flow sustainability.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label htmlFor="goalAmount" className="block text-sm font-semibold text-[#1A202C] mb-2">
@@ -682,7 +822,7 @@ export default function InputPage() {
                   value={goalAmount}
                   onChange={(e) => setGoalAmount(e.target.value)}
                   placeholder="Enter target amount"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 />
               </div>
 
@@ -696,7 +836,7 @@ export default function InputPage() {
                   value={goalTimeline}
                   onChange={(e) => setGoalTimeline(e.target.value)}
                   placeholder="e.g., 6 for 6 months"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
                 />
               </div>
 
@@ -704,13 +844,13 @@ export default function InputPage() {
                 <button
                   type="button"
                   onClick={handleCalculate}
-                  className="w-full px-6 py-3 bg-[#2B6CB0] hover:bg-[#2C5282] text-white font-semibold rounded-lg transition-colors shadow-sm hover:shadow-md"
+                  className="w-full px-6 py-3 bg-gradient-to-r from-[#2B6CB0] to-[#4299E1] hover:from-[#2C5282] hover:to-[#3182CE] text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105"
                 >
                   Calculate & Analyze
                 </button>
               </div>
 
-              <div className="bg-[#F7FAFC] border border-[#9F7AEA] rounded-lg p-4">
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-[#9F7AEA] rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-[#9F7AEA] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

@@ -41,10 +41,11 @@ export interface TimeSeriesFinancialData {
 }
 
 export interface GoalInputs {
-  goalType: 'growth' | 'profit' | 'employees' | 'renovations' | 'marketing' | '';
+  goalType: 'growth' | 'profit' | 'employees' | 'renovations' | 'marketing' | 'continuity' | 'custom' | '';
   goalAmount: number;
   goalTimeline: number; // in months
   ongoingCost?: number; // Monthly ongoing cost for the goal
+  customDescription?: string; // Description for custom goals
 }
 
 export interface BaselineCalculations {
@@ -300,6 +301,18 @@ export function calculateGoalImpact(
       monthlyOngoingCost = (goal.goalAmount * 0.5) / goal.goalTimeline;
       break;
     
+    case 'continuity':
+      // Business Continuity: Focus on building reserves, mostly upfront to build buffer
+      upfrontCost = goal.goalAmount * 0.3; // 30% upfront for immediate buffer building
+      monthlyOngoingCost = goal.goalAmount * 0.7 / goal.goalTimeline; // 70% spread over timeline
+      break;
+    
+    case 'custom':
+      // Custom Goal: Conservative estimate - 40% upfront, 60% ongoing
+      upfrontCost = goal.goalAmount * 0.4;
+      monthlyOngoingCost = goal.goalAmount * 0.6 / goal.goalTimeline;
+      break;
+    
     default:
       upfrontCost = 0;
       monthlyOngoingCost = 0;
@@ -394,6 +407,14 @@ export function generateStrategicAdvice(
     advice.push('Renovation projects often run 20-30% over budget. Build in contingency funds and consider phased implementation.');
   } else if (goal.goalType === 'marketing') {
     advice.push('Track marketing ROI carefully. Start with smaller campaigns to test effectiveness before scaling up.');
+  } else if (goal.goalType === 'continuity') {
+    advice.push('Business continuity focus: Regularly review and adjust your emergency reserves based on changing operational costs and business conditions.');
+    advice.push('Consider diversifying revenue streams and maintaining multiple supplier relationships to reduce dependency risks.');
+  } else if (goal.goalType === 'custom') {
+    advice.push('Custom goal: Monitor progress closely and be prepared to adjust your approach based on actual results and changing circumstances.');
+    if (goal.customDescription) {
+      advice.push(`Keep your specific goal in mind: "${goal.customDescription}". Regularly assess whether your current trajectory aligns with this objective.`);
+    }
   }
 
   // Revenue diversification advice

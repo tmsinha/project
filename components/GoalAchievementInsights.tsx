@@ -12,6 +12,7 @@ interface GoalAchievementInsightsProps {
     personalSalary: number
     revenue: number
   }
+  customDescription?: string
 }
 
 export default function GoalAchievementInsights({
@@ -21,7 +22,8 @@ export default function GoalAchievementInsights({
   riskLevel,
   netProfitMargin,
   safetyBuffer,
-  detailedInputs
+  detailedInputs,
+  customDescription
 }: GoalAchievementInsightsProps) {
   
   const generateGoalSpecificInsights = () => {
@@ -81,6 +83,28 @@ export default function GoalAchievementInsights({
         insights.push('Build email marketing capabilities for cost-effective customer retention.')
         break
 
+      case 'continuity':
+        insights.push('Focus on building robust emergency reserves - aim for 6-12 months of operating expenses.')
+        insights.push('Diversify revenue streams to reduce dependency on single sources.')
+        insights.push('Develop contingency plans for key business risks (supply chain, key personnel, market changes).')
+        insights.push('Maintain strong relationships with multiple suppliers to reduce dependency risks.')
+        insights.push('Regularly review insurance coverage to ensure adequate protection.')
+        if (safetyBuffer < 6) {
+          insights.push('Priority: Build cash reserves to at least 6 months of operating expenses for business resilience.')
+        }
+        break
+
+      case 'custom':
+        insights.push('Break down your custom goal into smaller, manageable milestones.')
+        insights.push('Establish clear metrics to measure progress toward your specific objective.')
+        insights.push('Regularly assess whether your current activities align with your custom goal.')
+        insights.push('Be prepared to pivot your approach based on results and changing circumstances.')
+        insights.push('Document lessons learned to inform future custom initiatives.')
+        if (customDescription) {
+          insights.push(`Your custom goal: "${customDescription}" - Keep this specific objective in mind throughout implementation.`)
+        }
+        break
+
       default:
         insights.push('Set clear, measurable milestones for tracking progress toward your goal.')
         insights.push('Regularly review and adjust your strategy based on performance data.')
@@ -137,6 +161,22 @@ export default function GoalAchievementInsights({
         steps.push('Define target audience and key messaging.')
         steps.push('Set up analytics and tracking for all marketing channels.')
         steps.push('Create content calendar and campaign schedule.')
+        break
+
+      case 'continuity':
+        steps.push('Conduct comprehensive risk assessment of current operations.')
+        steps.push('Review and strengthen insurance coverage.')
+        steps.push('Identify and diversify key supplier relationships.')
+        steps.push('Build emergency reserve fund with target amount.')
+        steps.push('Document business continuity and disaster recovery procedures.')
+        break
+
+      case 'custom':
+        steps.push('Clearly define success metrics for your custom goal.')
+        steps.push('Break down goal into specific, actionable milestones.')
+        steps.push('Identify resources and budget required for each phase.')
+        steps.push('Set up regular review cycles to assess progress.')
+        steps.push('Create contingency plans for potential obstacles.')
         break
     }
 

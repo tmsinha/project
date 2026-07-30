@@ -32,8 +32,13 @@ export default function ResultsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
+        <div className="text-center relative z-10">
           <div className="w-16 h-16 border-4 border-[#2B6CB0] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[#718096]">Loading results...</p>
         </div>
@@ -43,12 +48,17 @@ export default function ResultsPage() {
 
   if (!results) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
+        <div className="text-center relative z-10">
           <p className="text-[#718096] mb-4">No results found. Please enter your financial data first.</p>
           <button
             onClick={() => router.push('/input')}
-            className="px-6 py-3 bg-[#2B6CB0] hover:bg-[#2C5282] text-white font-semibold rounded-lg transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-[#2B6CB0] to-[#4299E1] hover:from-[#2C5282] hover:to-[#3182CE] text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl hover:shadow-blue-500/30 transform hover:scale-105"
           >
             Go to Input Page
           </button>
@@ -78,8 +88,15 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-10 blur-2xl"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Results & Advice</h1>
           <p className="text-[#718096]">Financial risk analysis and strategic recommendations</p>
@@ -89,10 +106,10 @@ export default function ResultsPage() {
           {/* Detailed Breakdown */}
           {results.detailedInputs && (
             <div className="lg:col-span-3">
-              <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                   <h2 className="text-xl font-semibold text-[#1A202C]">Detailed Financial Breakdown</h2>
-                  <span className="text-sm font-medium text-[#2B6CB0] bg-blue-50 px-3 py-1 rounded-full">
+                  <span className="text-sm font-medium text-[#2B6CB0] bg-gradient-to-r from-blue-50 to-purple-50 px-3 py-1 rounded-full border border-blue-200">
                     {results.detailedInputs.timePeriod.charAt(0).toUpperCase() + results.detailedInputs.timePeriod.slice(1)}
                   </span>
                 </div>
@@ -172,7 +189,7 @@ export default function ResultsPage() {
 
           {/* Risk Scorecard */}
           <div className="lg:col-span-1">
-            <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
               <h2 className="text-xl font-semibold text-[#1A202C] mb-6 pb-4 border-b border-gray-200">
                 Risk Scorecard
               </h2>
@@ -198,7 +215,7 @@ export default function ResultsPage() {
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div className="bg-[#2B6CB0] h-3 rounded-full" style={{ width: `${Math.min(100, results.risk.factors.profitMargin)}%` }}></div>
+                    <div className="bg-gradient-to-r from-[#2B6CB0] to-[#4299E1] h-3 rounded-full" style={{ width: `${Math.min(100, results.risk.factors.profitMargin)}%` }}></div>
                   </div>
                 </div>
 
@@ -210,7 +227,7 @@ export default function ResultsPage() {
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div className="bg-[#9F7AEA] h-3 rounded-full" style={{ width: `${Math.min(100, results.risk.factors.safetyBuffer)}%` }}></div>
+                    <div className="bg-gradient-to-r from-[#9F7AEA] to-[#B794F4] h-3 rounded-full" style={{ width: `${Math.min(100, results.risk.factors.safetyBuffer)}%` }}></div>
                   </div>
                 </div>
 
@@ -222,14 +239,14 @@ export default function ResultsPage() {
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div className="bg-[#2B6CB0] h-3 rounded-full" style={{ width: `${Math.min(100, results.risk.factors.cashFlowHealth)}%` }}></div>
+                    <div className="bg-gradient-to-r from-[#2B6CB0] to-[#9F7AEA] h-3 rounded-full" style={{ width: `${Math.min(100, results.risk.factors.cashFlowHealth)}%` }}></div>
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(43, 108, 176, 0.1)' }}>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-[#2B6CB0] to-[#9F7AEA] shadow-md">
                     <span className="text-2xl">📊</span>
                   </div>
                   <div>
@@ -243,7 +260,7 @@ export default function ResultsPage() {
 
           {/* Adjusted Budget Plan */}
           <div className="lg:col-span-2">
-            <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
               <h2 className="text-xl font-semibold text-[#1A202C] mb-6 pb-4 border-b border-gray-200">
                 Adjusted Budget Plan
               </h2>
@@ -354,7 +371,7 @@ export default function ResultsPage() {
                 </table>
               </div>
 
-              <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-purple-200">
                 <h3 className="text-sm font-semibold text-[#1A202C] mb-3">Goal Impact Summary</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
@@ -371,7 +388,7 @@ export default function ResultsPage() {
                   </div>
                 </div>
                 {results.detailedInputs && (
-                  <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="mt-4 pt-4 border-t border-purple-200">
                     <p className="text-xs text-[#718096]">
                       Analysis based on <span className="font-semibold text-[#1A202C]">{results.detailedInputs.timePeriod}</span> financial data
                     </p>
@@ -385,7 +402,7 @@ export default function ResultsPage() {
         {/* Charts and Insights Section */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Revenue Projection Chart */}
-          <div className="lg:col-span-2 bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+          <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
             <RevenueProjectionChart 
               currentRevenue={results.inputs.revenue}
               timeline={results.goal.goalTimeline}
@@ -394,7 +411,7 @@ export default function ResultsPage() {
           </div>
 
           {/* Expense Breakdown Chart */}
-          <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
             <ExpenseBreakdownChart 
               detailedInputs={results.detailedInputs}
               rentUtilities={results.inputs.rentUtilities}
@@ -404,7 +421,7 @@ export default function ResultsPage() {
           </div>
 
           {/* Goal Achievement Insights */}
-          <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
             <GoalAchievementInsights 
               goalType={results.goal.goalType}
               goalAmount={results.goal.goalAmount}
@@ -413,15 +430,16 @@ export default function ResultsPage() {
               netProfitMargin={results.adjusted.netProfitMargin}
               safetyBuffer={results.adjusted.safetyBuffer}
               detailedInputs={results.detailedInputs}
+              customDescription={results.goal.customDescription}
             />
           </div>
         </div>
 
         {/* General Financial Advice */}
-        <div className="mt-8 bg-[#F7FAFC] rounded-xl p-6 border-2 border-[#9F7AEA]">
+        <div className="mt-8 bg-white/80 backdrop-blur-sm rounded-xl p-6 border-2 border-[#9F7AEA] shadow-lg">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(159, 122, 234, 0.1)' }}>
-              <svg className="w-6 h-6 text-[#9F7AEA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-[#9F7AEA] to-[#B794F4] shadow-md">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
