@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency, formatPercentage } from '@/lib/financialCalculator'
 import type { AdjustedFinancials } from '@/lib/financialCalculator'
+import RevenueProjectionChart from '@/components/RevenueProjectionChart'
+import ExpenseBreakdownChart from '@/components/ExpenseBreakdownChart'
+import GoalAchievementInsights from '@/components/GoalAchievementInsights'
 
 export default function ResultsPage() {
   const router = useRouter()
-  const [results, setResults] = useState<AdjustedFinancials & { advice: string[]; inputs: any; goal: any } | null>(null)
+  const [results, setResults] = useState<AdjustedFinancials & { advice: string[]; inputs: any; goal: any; detailedInputs?: any } | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -83,6 +86,90 @@ export default function ResultsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Detailed Breakdown */}
+          {results.detailedInputs && (
+            <div className="lg:col-span-3">
+              <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                  <h2 className="text-xl font-semibold text-[#1A202C]">Detailed Financial Breakdown</h2>
+                  <span className="text-sm font-medium text-[#2B6CB0] bg-blue-50 px-3 py-1 rounded-full">
+                    {results.detailedInputs.timePeriod.charAt(0).toUpperCase() + results.detailedInputs.timePeriod.slice(1)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Revenue & COGS */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-[#1A202C] border-b border-gray-200 pb-2">Revenue & COGS</h3>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">Revenue</span>
+                      <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.revenue)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">COGS</span>
+                      <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.cogs)}</span>
+                    </div>
+                  </div>
+
+                  {/* Facility Costs */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-[#1A202C] border-b border-gray-200 pb-2">Facility Costs</h3>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">Rent</span>
+                      <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.rent)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">Utilities</span>
+                      <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.utilities)}</span>
+                    </div>
+                    {results.detailedInputs.otherFacilityCosts > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-[#718096]">Other Facility</span>
+                        <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.otherFacilityCosts)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Payroll */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-[#1A202C] border-b border-gray-200 pb-2">Payroll</h3>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">Employees</span>
+                      <span className="font-medium text-[#1A202C]">{results.detailedInputs.numberOfEmployees}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">Personal Salary</span>
+                      <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.personalSalary)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">Other Payroll</span>
+                      <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.otherPayrollExpenses)}</span>
+                    </div>
+                  </div>
+
+                  {/* Other */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-[#1A202C] border-b border-gray-200 pb-2">Other</h3>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">Taxes</span>
+                      <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.taxes)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#718096]">Custom Expenses</span>
+                      <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.customExpenses)}</span>
+                    </div>
+                    {results.detailedInputs.cashReserves > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-[#718096]">Cash Reserves</span>
+                        <span className="font-medium text-[#1A202C]">{formatCurrency(results.detailedInputs.cashReserves)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Risk Scorecard */}
           <div className="lg:col-span-1">
             <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
@@ -184,18 +271,63 @@ export default function ResultsPage() {
                       <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.cogs)}</td>
                       <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
                     </tr>
-                    <tr className="border-b border-gray-200">
-                      <td className="py-3 px-4 text-sm text-[#1A202C]">Rent & Utilities</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.rentUtilities)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.rentUtilities)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
-                    </tr>
-                    <tr className="border-b border-gray-200">
-                      <td className="py-3 px-4 text-sm text-[#1A202C]">Taxes & Payroll</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.taxesPayroll)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.taxesPayroll)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
-                    </tr>
+                    {results.detailedInputs ? (
+                      <>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C] pl-8">Rent</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.rent)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.rent)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C] pl-8">Utilities</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.utilities)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.utilities)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        {results.detailedInputs.otherFacilityCosts > 0 && (
+                          <tr className="border-b border-gray-200">
+                            <td className="py-3 px-4 text-sm text-[#1A202C] pl-8">Other Facility</td>
+                            <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.otherFacilityCosts)}</td>
+                            <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.otherFacilityCosts)}</td>
+                            <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                          </tr>
+                        )}
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C] pl-8">Personal Salary</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.personalSalary)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.personalSalary)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C] pl-8">Other Payroll</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.otherPayrollExpenses)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.otherPayrollExpenses)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C] pl-8">Taxes</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.taxes)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.taxes)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                      </>
+                    ) : (
+                      <>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">Rent & Utilities</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.rentUtilities)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.rentUtilities)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">Taxes & Payroll</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.taxesPayroll)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.taxesPayroll)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                      </>
+                    )}
                     <tr className="border-b border-gray-200">
                       <td className="py-3 px-4 text-sm text-[#1A202C]">Custom Expenses</td>
                       <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.customExpenses)}</td>
@@ -238,12 +370,54 @@ export default function ResultsPage() {
                     <p className="text-sm font-semibold text-[#1A202C]">{formatCurrency(results.goalImpact.totalCostOverTimeline)}</p>
                   </div>
                 </div>
+                {results.detailedInputs && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <p className="text-xs text-[#718096]">
+                      Analysis based on <span className="font-semibold text-[#1A202C]">{results.detailedInputs.timePeriod}</span> financial data
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Logistics & Risk Advice Box */}
+        {/* Charts and Insights Section */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Revenue Projection Chart */}
+          <div className="lg:col-span-2 bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+            <RevenueProjectionChart 
+              currentRevenue={results.inputs.revenue}
+              timeline={results.goal.goalTimeline}
+              profitMargin={results.adjusted.netProfitMargin}
+            />
+          </div>
+
+          {/* Expense Breakdown Chart */}
+          <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+            <ExpenseBreakdownChart 
+              detailedInputs={results.detailedInputs}
+              rentUtilities={results.inputs.rentUtilities}
+              taxesPayroll={results.inputs.taxesPayroll}
+              customExpenses={results.inputs.customExpenses}
+            />
+          </div>
+
+          {/* Goal Achievement Insights */}
+          <div className="bg-[#F7FAFC] rounded-xl p-6 border border-gray-200">
+            <GoalAchievementInsights 
+              goalType={results.goal.goalType}
+              goalAmount={results.goal.goalAmount}
+              goalTimeline={results.goal.goalTimeline}
+              riskLevel={results.risk.riskLevel}
+              netProfitMargin={results.adjusted.netProfitMargin}
+              safetyBuffer={results.adjusted.safetyBuffer}
+              detailedInputs={results.detailedInputs}
+            />
+          </div>
+        </div>
+
+        {/* General Financial Advice */}
         <div className="mt-8 bg-[#F7FAFC] rounded-xl p-6 border-2 border-[#9F7AEA]">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(159, 122, 234, 0.1)' }}>
@@ -252,7 +426,7 @@ export default function ResultsPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-[#1A202C] mb-3">Strategic Advice & Risk Mitigation</h3>
+              <h3 className="text-lg font-semibold text-[#1A202C] mb-3">General Financial Advice & Risk Mitigation</h3>
               <div className="space-y-3">
                 {results.advice.map((advice, index) => (
                   <div key={index} className="flex items-start gap-3">

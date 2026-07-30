@@ -12,6 +12,34 @@ export interface FinancialInputs {
   cashReserves?: number; // Optional: user's current cash reserves
 }
 
+export interface DetailedFinancialInputs {
+  revenue: number;
+  cogs: number;
+  rent: number;
+  utilities: number;
+  otherFacilityCosts: number;
+  numberOfEmployees: number;
+  personalSalary: number;
+  otherPayrollExpenses: number;
+  taxes: number;
+  customExpenses: number;
+  cashReserves: number;
+  timePeriod: 'monthly' | 'quarterly' | 'annually';
+}
+
+export interface TimePeriodData {
+  id: string;
+  periodType: 'month' | 'quarter' | 'year';
+  periodValue: string; // e.g., "January 2024", "Q1 2024", "2024"
+  financialData: DetailedFinancialInputs;
+  goalInputs?: GoalInputs;
+}
+
+export interface TimeSeriesFinancialData {
+  periods: TimePeriodData[];
+  currentPeriodId: string;
+}
+
 export interface GoalInputs {
   goalType: 'growth' | 'profit' | 'employees' | 'renovations' | 'marketing' | '';
   goalAmount: number;
@@ -47,6 +75,102 @@ export interface AdjustedFinancials {
     totalCostOverTimeline: number;
   };
   risk: RiskAssessment;
+}
+
+/**
+ * Convert time period to monthly multiplier
+ */
+export function getTimePeriodMultiplier(timePeriod: 'monthly' | 'quarterly' | 'annually'): number {
+  switch (timePeriod) {
+    case 'monthly': return 1;
+    case 'quarterly': return 1/3;
+    case 'annually': return 1/12;
+    default: return 1;
+  }
+}
+
+/**
+ * Analyze time-series financial data to identify trends
+ */
+export function analyzeTimeSeriesTrends(timeSeriesData: TimeSeriesFinancialData) {
+  const periods = timeSeriesData.periods.sort((a, b) => {
+    // Sort by period (assuming format like "January 2024", "Q1 2024", "2024")
+    return a.periodValue.localeCompare(b.periodValue);
+  });
+
+  const trends = {
+    revenue: [] as number[],
+    netIncome: [] as number[],
+    profitMargin: [] as number[],
+    periods: periods.map(p => p.periodValue)
+  };
+
+  periods.forEach(period => {
+    const normalized = normalizeToMonthly(period.financialData);
+    const baseline = calculateBaseline(normalized);
+    
+    trends.revenue.push(normalized.revenue);
+    trends.netIncome.push(baseline.netIncome);
+    trends.profitMargin.push(baseline.netProfitMargin);
+  });
+
+  return trends;
+}
+
+/**
+ * Calculate period-over-period growth rates
+ */
+export function calculateGrowthRates(current: number, previous: number): number {
+  if (previous === 0) return 0;
+  return ((current - previous) / previous) * 100;
+}
+
+/**
+ * Get progress towards goal across time periods
+ */
+export function calculateGoalProgress(timeSeriesData: TimeSeriesFinancialData, goal: GoalInputs) {
+  const periods = timeSeriesData.periods.sort((a, b) => 
+    a.periodValue.localeCompare(b.periodValue)
+  );
+
+  const progress = periods.map((period, index) => {
+    const normalized = normalizeToMonthly(period.financialData);
+    const baseline = calculateBaseline(normalized);
+    
+    // Calculate cumulative progress if we have goal inputs
+    let goalProgress = 0;
+    if (period.goalInputs) {
+      const result = calculateGoalImpact(normalized, period.goalInputs);
+      // Simple progress metric: how close are we to the goal timeline?
+      goalProgress = (index + 1) / goal.goalTimeline * 100;
+    }
+
+    return {
+      period: period.periodValue,
+      revenue: normalized.revenue,
+      netIncome: baseline.netIncome,
+      profitMargin: baseline.netProfitMargin,
+      goalProgress: Math.min(goalProgress, 100)
+    };
+  });
+
+  return progress;
+}
+
+/**
+ * Normalize detailed inputs to monthly values
+ */
+export function normalizeToMonthly(detailedInputs: DetailedFinancialInputs): FinancialInputs {
+  const multiplier = getTimePeriodMultiplier(detailedInputs.timePeriod);
+  
+  return {
+    revenue: detailedInputs.revenue * multiplier,
+    cogs: detailedInputs.cogs * multiplier,
+    rentUtilities: (detailedInputs.rent + detailedInputs.utilities + detailedInputs.otherFacilityCosts) * multiplier,
+    taxesPayroll: (detailedInputs.taxes + detailedInputs.personalSalary + detailedInputs.otherPayrollExpenses) * multiplier,
+    customExpenses: detailedInputs.customExpenses * multiplier,
+    cashReserves: detailedInputs.cashReserves // Cash reserves are absolute, not time-dependent
+  };
 }
 
 /**
