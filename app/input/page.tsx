@@ -856,7 +856,7 @@ export default function InputPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <p className="text-sm text-[#1A202C]">
-                    Your financial data will be analyzed to provide risk assessment and adjusted budget recommendations based on your goals across all time periods.
+                    Your financial data will be analyzed to provide risk assessment and adjusted financial recommendations based on your goals across all time periods.
                   </p>
                 </div>
               </div>

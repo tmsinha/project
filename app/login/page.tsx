@@ -27,7 +27,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold leading-10 tracking-tight text-[#1A202C]">
-            Budget App Login
+            Val Login
           </h1>
           <p className="text-lg leading-8 text-[#718096]">
             Enter your email to receive a magic login link

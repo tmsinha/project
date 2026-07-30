@@ -256,7 +256,7 @@ export default function ProgressPage() {
       <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Goal Progress</h1>
+            <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Val Progress</h1>
             <p className="text-[#718096]">Track your business goal progress and financial metrics</p>
           </div>
           <button

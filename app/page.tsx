@@ -24,13 +24,13 @@ export default function Home() {
 
           {/* Headline */}
           <h1 className="text-5xl md:text-6xl font-bold text-[#1A202C] mb-6 leading-tight">
-            Smart Budget Planning for <br />
+            Smart Financial Planning for <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2B6CB0] to-[#9F7AEA]">Small Business Owners</span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-xl text-[#718096] mb-12 max-w-2xl mx-auto leading-relaxed">
-            Take control of your business finances with intuitive budgeting, risk analysis, and goal tracking. Make informed decisions for sustainable growth.
+            Take control of your business finances with intuitive financial planning, risk analysis, and goal tracking. Make informed decisions for sustainable growth.
           </p>
 
           {/* Features */}
@@ -41,7 +41,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="font-semibold text-[#1A202C] mb-2">Budget Planning</h3>
+              <h3 className="font-semibold text-[#1A202C] mb-2">Financial Planning</h3>
               <p className="text-sm text-[#718096]">Create detailed financial plans with ease</p>
             </div>
 

@@ -69,7 +69,7 @@ export default function GoalAchievementInsights({
         insights.push('Obtain multiple quotes from contractors to ensure competitive pricing.')
         insights.push('Phase renovations to minimize business disruption and spread costs.')
         insights.push('Consider renovations that will directly impact revenue generation (e.g., customer-facing areas).')
-        insights.push('Set aside 20-30% contingency budget for unexpected costs.')
+        insights.push('Set aside 20-30% contingency funds for unexpected costs.')
         if (riskLevel === 'High' || riskLevel === 'Critical') {
           insights.push('Delay renovations until financial position improves to avoid jeopardizing business stability.')
         }
@@ -129,7 +129,7 @@ export default function GoalAchievementInsights({
     const steps: string[] = []
 
     // Common first steps
-    steps.push('Create a detailed project plan with timeline and budget breakdown.')
+    steps.push('Create a detailed project plan with timeline and financial breakdown.')
     steps.push('Set up tracking systems to monitor goal progress and financial impact.')
 
     switch (goalType) {
@@ -174,7 +174,7 @@ export default function GoalAchievementInsights({
       case 'custom':
         steps.push('Clearly define success metrics for your custom goal.')
         steps.push('Break down goal into specific, actionable milestones.')
-        steps.push('Identify resources and budget required for each phase.')
+        steps.push('Identify resources and funding required for each phase.')
         steps.push('Set up regular review cycles to assess progress.')
         steps.push('Create contingency plans for potential obstacles.')
         break

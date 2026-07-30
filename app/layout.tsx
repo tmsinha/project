@@ -17,7 +17,7 @@ const merriweather = Merriweather({
 });
 
 export const metadata: Metadata = {
-  title: "Small Business Budget & Risk Analysis",
+  title: "Val - Smart Budgeting & Risk Analysis",
   description: "Financial planning, budgeting, and risk analysis platform for small business owners",
 };
 

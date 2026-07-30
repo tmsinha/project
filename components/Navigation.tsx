@@ -39,11 +39,11 @@ export default function Navigation() {
           {/* Logo/Name */}
           <Link href="/dashboard" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-[#2B6CB0] to-[#4299E1] shadow-md group-hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
-              <span className="text-white font-bold text-lg">B</span>
+              <span className="text-white font-bold text-lg">V</span>
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-[#1A202C]">Budget Pro</h1>
-              <p className="text-sm text-[#718096]">Business Budget Planning</p>
+              <h1 className="text-xl font-semibold text-[#1A202C]">Val</h1>
+              <p className="text-sm text-[#718096]">Budgeting</p>
             </div>
           </Link>
 

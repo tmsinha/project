@@ -29,12 +29,12 @@ export async function loginAction(prevState: any, formData: FormData) {
     // Send email using Resend
     try {
       await resend.emails.send({
-        from: 'Budget App <onboarding@resend.dev>',
+        from: 'Val <onboarding@resend.dev>',
         to: email,
-        subject: 'Your Budget App Verification Code',
+        subject: 'Your Val Verification Code',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #2B6CB0;">Welcome to Budget App!</h2>
+            <h2 style="color: #2B6CB0;">Welcome to Val!</h2>
             <p>Your verification code is:</p>
             <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
               ${code}

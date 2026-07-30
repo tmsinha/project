@@ -44,7 +44,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Dashboard</h1>
-          <p className="text-[#718096]">Manage your business budget and financial planning</p>
+          <p className="text-[#718096]">Manage your business finances and financial planning</p>
         </div>
 
         {loading ? (

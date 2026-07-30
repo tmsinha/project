@@ -404,7 +404,7 @@ export function generateStrategicAdvice(
   if (goal.goalType === 'employees') {
     advice.push('Before hiring, ensure you have sufficient cash flow to cover at least 6 months of salaries for new positions.');
   } else if (goal.goalType === 'renovations') {
-    advice.push('Renovation projects often run 20-30% over budget. Build in contingency funds and consider phased implementation.');
+    advice.push('Renovation projects often run 20-30% over projected costs. Build in contingency funds and consider phased implementation.');
   } else if (goal.goalType === 'marketing') {
     advice.push('Track marketing ROI carefully. Start with smaller campaigns to test effectiveness before scaling up.');
   } else if (goal.goalType === 'continuity') {

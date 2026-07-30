@@ -258,11 +258,11 @@ export default function ResultsPage() {
             </div>
           </div>
 
-          {/* Adjusted Budget Plan */}
+          {/* Adjusted Financial Plan */}
           <div className="lg:col-span-2">
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
               <h2 className="text-xl font-semibold text-[#1A202C] mb-6 pb-4 border-b border-gray-200">
-                Adjusted Budget Plan
+                Adjusted Financial Plan
               </h2>
 
               <div className="overflow-x-auto">
@@ -471,7 +471,7 @@ export default function ResultsPage() {
             onClick={() => router.push('/input')}
             className="px-6 py-3 bg-[#2B6CB0] hover:bg-[#2C5282] text-white font-semibold rounded-lg transition-colors shadow-sm hover:shadow-md"
           >
-            Adjust Budget Parameters
+            Adjust Financial Parameters
           </button>
         </div>
       </div>
