@@ -36,7 +36,7 @@ function VerifyForm() {
             Verify Your Email
           </h1>
           <p className="text-lg leading-8 text-[#718096]">
-            Your verification code is: <span className="font-mono font-bold text-[#2B6CB0] bg-blue-50 px-3 py-1 rounded-lg">{code}</span>
+            Enter the 6-digit code sent to <span className="font-semibold text-[#2B6CB0]">{email}</span>
           </p>
         </div>
         
@@ -55,7 +55,6 @@ function VerifyForm() {
               maxLength={6}
               pattern="[0-9]{6}"
               placeholder="123456"
-              defaultValue={code}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all text-center text-2xl tracking-widest shadow-sm"
             />
           </div>

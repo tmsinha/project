@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function Navigation() {
   const pathname = usePathname()
+  const router = useRouter()
 
   // Don't show navigation on login, verify, and welcome pages
   const hideNav = pathname === '/' || pathname === '/login' || pathname === '/verify'
@@ -21,6 +22,15 @@ export default function Navigation() {
   ]
 
   const isActive = (href: string) => pathname === href
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' })
+      router.push('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-lg">
@@ -62,6 +72,12 @@ export default function Navigation() {
             <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-[#2B6CB0] to-[#9F7AEA] shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
               <span className="text-white text-sm font-medium">U</span>
             </div>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm font-medium text-[#718096] hover:text-[#2B6CB0] hover:bg-blue-50 rounded-lg transition-all duration-300"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </div>

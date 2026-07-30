@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { getValidVerificationCode, markVerificationCodeUsed } from '@/lib/db'
+import { getValidVerificationCode, markVerificationCodeUsed, setAuthSession } from '@/lib/db'
 
 export async function verifyAction(prevState: any, formData: FormData) {
   const email = formData.get('email') as string
@@ -29,7 +29,10 @@ export async function verifyAction(prevState: any, formData: FormData) {
     // Mark the code as used
     await markVerificationCodeUsed(validCode.id)
     
-    console.log('Code marked as used, redirecting to dashboard')
+    // Set auth session
+    await setAuthSession(email)
+    
+    console.log('Code marked as used, session set, redirecting to dashboard')
     
   } catch (error) {
     console.error('Verification error:', error)

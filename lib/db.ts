@@ -1,93 +1,81 @@
-import fs from 'fs'
-import path from 'path'
+import { cookies } from 'next/headers'
 
-const DB_PATH = path.join(process.cwd(), 'data', 'database.json')
-
-interface Database {
-  users: Array<{ id: number; email: string; created_at: string }>;
-  verification_codes: Array<{ id: number; email: string; code: string; expires_at: string; used: boolean; created_at: string }>;
-}
-
-let db: Database | null = null
-
-export async function getDb(): Promise<Database> {
-  if (db) return db
-
-  // Ensure data directory exists
-  const dataDir = path.join(process.cwd(), 'data')
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true })
-  }
-
-  console.log('Initializing JSON database...')
-  
-  if (fs.existsSync(DB_PATH)) {
-    const data = fs.readFileSync(DB_PATH, 'utf-8')
-    db = JSON.parse(data)
-  } else {
-    db = {
-      users: [],
-      verification_codes: []
-    }
-    saveDb()
-  }
-
-  console.log('Database initialized successfully')
-  return db! // Use non-null assertion since we've initialized db above
-}
-
-export function saveDb() {
-  if (db) {
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2))
-  }
-}
+// In-memory storage for development (won't persist across server restarts)
+// For production, this should be replaced with a proper database
+let verificationCodes: Map<string, { code: string; expiresAt: Date; used: boolean }> = new Map()
+let users: Set<string> = new Set()
 
 export async function createVerificationCode(email: string, code: string, expiresAt: Date): Promise<void> {
-  const database = await getDb()
-  const newCode = {
-    id: database.verification_codes.length + 1,
-    email,
+  verificationCodes.set(`${email}_${code}`, {
     code,
-    expires_at: expiresAt.toISOString(),
-    used: false,
-    created_at: new Date().toISOString()
-  }
-  database.verification_codes.push(newCode)
-  saveDb()
+    expiresAt,
+    used: false
+  })
+  console.log(`Created verification code for ${email}: ${code}`)
 }
 
 export async function getValidVerificationCode(email: string, code: string): Promise<any> {
-  const database = await getDb()
-  const now = new Date().toISOString()
-  const validCode = database.verification_codes.find(
-    vc => vc.email === email && 
-         vc.code === code && 
-         !vc.used && 
-         vc.expires_at > now
-  )
-  return validCode || null
+  const key = `${email}_${code}`
+  const storedCode = verificationCodes.get(key)
+  
+  if (!storedCode) {
+    console.log(`No code found for ${email} with code ${code}`)
+    return null
+  }
+  
+  const now = new Date()
+  
+  if (storedCode.used) {
+    console.log(`Code for ${email} already used`)
+    return null
+  }
+  
+  if (storedCode.expiresAt < now) {
+    console.log(`Code for ${email} expired`)
+    verificationCodes.delete(key)
+    return null
+  }
+  
+  console.log(`Valid code found for ${email}`)
+  return { id: key, email, code: storedCode.code, expires_at: storedCode.expiresAt }
 }
 
-export async function markVerificationCodeUsed(id: number): Promise<void> {
-  const database = await getDb()
-  const codeIndex = database.verification_codes.findIndex(vc => vc.id === id)
-  if (codeIndex !== -1) {
-    database.verification_codes[codeIndex].used = true
-    saveDb()
+export async function markVerificationCodeUsed(id: string): Promise<void> {
+  const storedCode = verificationCodes.get(id)
+  if (storedCode) {
+    storedCode.used = true
+    console.log(`Marked code ${id} as used`)
   }
 }
 
 export async function createOrUpdateUser(email: string): Promise<void> {
-  const database = await getDb()
-  const existingUser = database.users.find(u => u.email === email)
-  
-  if (!existingUser) {
-    const newUser = {
-      id: database.users.length + 1,
-      email,
-      created_at: new Date().toISOString()
-    }
-    database.users.push(newUser)
-    saveDb()
-  }
+  users.add(email)
+  console.log(`User created/updated: ${email}`)
+}
+
+export async function isUserAuthenticated(): Promise<boolean> {
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get('session')
+  return !!sessionCookie
+}
+
+export async function setAuthSession(email: string): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.set('session', email, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7 // 1 week
+  })
+}
+
+export async function clearAuthSession(): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.delete('session')
+}
+
+export async function getCurrentUser(): Promise<string | null> {
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get('session')
+  return sessionCookie?.value || null
 }
