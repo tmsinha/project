@@ -7,6 +7,8 @@ export async function verifyAction(prevState: any, formData: FormData) {
   const email = formData.get('email') as string
   const code = formData.get('code') as string
   
+  console.log(`Verifying: email=${email}, code=${code}`)
+  
   if (!email || !code) {
     return { error: 'Email and code are required' }
   }
@@ -18,12 +20,16 @@ export async function verifyAction(prevState: any, formData: FormData) {
   try {
     const validCode = await getValidVerificationCode(email, code)
     
+    console.log('Valid code found:', validCode)
+    
     if (!validCode) {
       return { error: 'Invalid or expired code' }
     }
     
     // Mark the code as used
     await markVerificationCodeUsed(validCode.id)
+    
+    console.log('Code marked as used, redirecting to dashboard')
     
   } catch (error) {
     console.error('Verification error:', error)

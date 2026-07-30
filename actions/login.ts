@@ -21,6 +21,8 @@ export async function loginAction(prevState: any, formData: FormData) {
     await createOrUpdateUser(email)
     await createVerificationCode(email, code, expiresAt)
     
+    console.log(`Login code generated for ${email}: ${code}`)
+    
   } catch (error) {
     console.error('Database error:', error)
     return { error: 'Failed to process login. Please try again.' }
