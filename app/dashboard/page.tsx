@@ -19,19 +19,6 @@ export default function DashboardPage() {
       const email = await getCurrentUserEmail()
       setUserEmail(email)
       
-      // Check if user has password set
-      try {
-        const response = await fetch('/api/check-password')
-        const data = await response.json()
-        
-        if (data.requiresPassword) {
-          router.push('/set-password')
-          return
-        }
-      } catch (error) {
-        console.error('Error checking password status:', error)
-      }
-      
       // Check for stored results
       const storedResults = getFinancialResults()
       if (storedResults) {
@@ -41,7 +28,7 @@ export default function DashboardPage() {
     }
     
     loadUserData()
-  }, [router])
+  }, [])
 
   const getRiskColor = (level: string) => {
     switch (level) {

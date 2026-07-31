@@ -51,8 +51,8 @@ export default function Navigation() {
     }
   }, [])
 
-  // Don't show navigation on login, verify, set-password, signup, and forgot-password pages
-  const hideNav = pathname === '/' || pathname === '/login' || pathname === '/verify' || pathname === '/set-password' || pathname === '/signup' || pathname === '/forgot-password'
+  // Don't show navigation on login, verify, signup, and forgot-password pages
+  const hideNav = pathname === '/' || pathname === '/login' || pathname === '/verify' || pathname === '/signup' || pathname === '/forgot-password'
   
   if (hideNav) {
     return null

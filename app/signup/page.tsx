@@ -19,14 +19,10 @@ function SignUpForm() {
   // Handle successful signup (email sent)
   useEffect(() => {
     if (state.success && state.method === 'code') {
-      // Store password in sessionStorage for verification page
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('signupPassword', password)
-      }
       // Redirect to verify page
       router.push(`/verify?email=${encodeURIComponent(state.email)}&signup=true`)
     }
-  }, [state, router, password])
+  }, [state, router])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     setClientError('')

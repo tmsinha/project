@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createVerificationCode, createOrUpdateUser, getUserByEmail, setAuthSession, userHasPassword } from '@/lib/db'
-import { verifyPassword } from '@/lib/password'
+import { verifyPassword, hashPassword, validatePasswordStrength } from '@/lib/password'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -47,14 +47,27 @@ export async function loginAction(prevState: any, formData: FormData) {
     
     // Signup flow - send verification code
     if (loginMethod === 'signup') {
+      // Validate password strength
+      if (!password) {
+        return { error: 'Password is required' }
+      }
+      
+      const passwordValidation = validatePasswordStrength(password)
+      if (!passwordValidation.valid) {
+        return { error: passwordValidation.message }
+      }
+      
+      // Hash the password
+      const hashedPassword = await hashPassword(password)
+      
       // Generate a 6-digit verification code
       const code = Math.floor(100000 + Math.random() * 900000).toString()
       
       // Set expiration to 15 minutes from now
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
 
-      // Store in database
-      await createOrUpdateUser(email)
+      // Store in database with password
+      await createOrUpdateUser(email, hashedPassword)
       await createVerificationCode(email, code, expiresAt)
       
       console.log(`Signup code generated for ${email}: ${code}`)

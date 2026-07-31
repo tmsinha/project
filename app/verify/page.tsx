@@ -15,45 +15,16 @@ function VerifyForm() {
   const router = useRouter()
   const email = searchParams.get('email') || ''
   const code = searchParams.get('code') || ''
-  const isSignup = searchParams.get('signup') === 'true'
   const [state, formAction, pending] = useActionState(verifyAction, initialState)
 
   // Handle successful verification
   useEffect(() => {
     if (state.success && state.email) {
       setUserEmail(state.email)
-      
-      if (isSignup) {
-        // For signup, get password from sessionStorage and complete account setup
-        const signupPassword = sessionStorage.getItem('signupPassword')
-        if (signupPassword) {
-          // Import and call setPasswordAction directly
-          import('@/actions/set-password').then(({ setPasswordAction }) => {
-            const formData = new FormData()
-            formData.append('email', state.email)
-            formData.append('password', signupPassword)
-            formData.append('confirmPassword', signupPassword)
-            
-            setPasswordAction(null, formData).then((result) => {
-              sessionStorage.removeItem('signupPassword')
-              if (result.success) {
-                router.push('/dashboard')
-              } else {
-                // If password setup fails, redirect to set-password page
-                router.push(`/set-password?email=${encodeURIComponent(state.email)}`)
-              }
-            })
-          })
-        } else {
-          // Fallback to set-password page
-          router.push(`/set-password?email=${encodeURIComponent(state.email)}`)
-        }
-      } else {
-        // For forgot password flow, redirect to dashboard
-        router.push('/dashboard')
-      }
+      // Redirect to dashboard (password is already stored during signup)
+      router.push('/dashboard')
     }
-  }, [state, router, isSignup])
+  }, [state, router])
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen relative overflow-hidden">
@@ -72,13 +43,13 @@ function VerifyForm() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold leading-10 tracking-tight text-[#1A202C]">
-            {isSignup ? 'Complete Your Sign Up' : 'Verify Your Email'}
+            Verify Your Email
           </h1>
           <p className="text-lg leading-8 text-[#718096]">
             Enter the 6-digit code sent to <span className="font-semibold text-[#2B6CB0]">{email}</span>
           </p>
           <p className="text-sm text-[#718096]">
-            {isSignup ? 'After verification, your account will be created with your chosen password' : 'After verification, you\'ll be logged in to your account'}
+            After verification, you'll be logged in to your account
           </p>
         </div>
         
