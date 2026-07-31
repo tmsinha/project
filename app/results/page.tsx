@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { formatCurrency, formatPercentage } from '@/lib/financialCalculator'
+import { formatCurrency, formatPercentage, getTimePeriodMultiplier } from '@/lib/financialCalculator'
 import type { AdjustedFinancials } from '@/lib/financialCalculator'
 import RevenueProjectionChart from '@/components/RevenueProjectionChart'
 import ExpenseBreakdownChart from '@/components/ExpenseBreakdownChart'
@@ -11,7 +11,7 @@ import { getFinancialResults } from '@/lib/storage'
 
 export default function ResultsPage() {
   const router = useRouter()
-  const [results, setResults] = useState<AdjustedFinancials & { advice: string[]; inputs: any; goal: any; detailedInputs?: any } | null>(null)
+  const [results, setResults] = useState<AdjustedFinancials & { advice: string[]; inputs: any; goal: any; detailedInputs?: any; periodInfo?: any; timeSeriesData?: any } | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -83,6 +83,12 @@ export default function ResultsPage() {
     }
   }
 
+  // Helper function to convert normalized monthly values back to original time period
+  const convertToOriginalPeriod = (monthlyValue: number, timePeriod: string) => {
+    const multiplier = getTimePeriodMultiplier(timePeriod as 'monthly' | 'quarterly' | 'annually')
+    return monthlyValue / multiplier
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
       {/* Decorative background elements */}
@@ -95,7 +101,14 @@ export default function ResultsPage() {
       <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Results & Advice</h1>
-          <p className="text-[#718096]">Financial risk analysis and strategic recommendations</p>
+          <p className="text-[#718096]">
+            Financial risk analysis and strategic recommendations
+            {results.periodInfo && (
+              <span className="ml-2 text-sm font-medium text-[#2B6CB0] bg-gradient-to-r from-blue-50 to-purple-50 px-3 py-1 rounded-full border border-blue-200">
+                Analysis for: {results.periodInfo.periodValue}
+              </span>
+            )}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -105,9 +118,16 @@ export default function ResultsPage() {
               <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
                   <h2 className="text-xl font-semibold text-[#1A202C]">Detailed Financial Breakdown</h2>
-                  <span className="text-sm font-medium text-[#2B6CB0] bg-gradient-to-r from-blue-50 to-purple-50 px-3 py-1 rounded-full border border-blue-200">
-                    {results.detailedInputs.timePeriod.charAt(0).toUpperCase() + results.detailedInputs.timePeriod.slice(1)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {results.periodInfo && (
+                      <span className="text-sm font-medium text-[#2B6CB0] bg-gradient-to-r from-blue-50 to-purple-50 px-3 py-1 rounded-full border border-blue-200">
+                        {results.periodInfo.periodValue}
+                      </span>
+                    )}
+                    <span className="text-sm font-medium text-[#2B6CB0] bg-gradient-to-r from-blue-50 to-purple-50 px-3 py-1 rounded-full border border-blue-200">
+                      {results.detailedInputs.timePeriod.charAt(0).toUpperCase() + results.detailedInputs.timePeriod.slice(1)}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -272,20 +292,20 @@ export default function ResultsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-gray-200">
-                      <td className="py-3 px-4 text-sm text-[#1A202C]">Revenue</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.revenue)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.revenue)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
-                    </tr>
-                    <tr className="border-b border-gray-200">
-                      <td className="py-3 px-4 text-sm text-[#1A202C]">COGS</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.cogs)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.cogs)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
-                    </tr>
                     {results.detailedInputs ? (
                       <>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">Revenue</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.revenue)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.revenue)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">COGS</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.cogs)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.cogs)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
                         <tr className="border-b border-gray-200">
                           <td className="py-3 px-4 text-sm text-[#1A202C] pl-8">Rent</td>
                           <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.rent)}</td>
@@ -324,9 +344,43 @@ export default function ResultsPage() {
                           <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.taxes)}</td>
                           <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
                         </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">Custom Expenses</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.detailedInputs.customExpenses)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.detailedInputs.customExpenses)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">Goal Ongoing Cost</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(0)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(convertToOriginalPeriod(results.goalImpact.monthlyOngoingCost, results.detailedInputs.timePeriod))}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#9F7AEA]">+{formatCurrency(convertToOriginalPeriod(results.goalImpact.monthlyOngoingCost, results.detailedInputs.timePeriod))}</td>
+                        </tr>
+                        <tr className="border-b-2 border-gray-300">
+                          <td className="py-3 px-4 text-sm font-semibold text-[#1A202C]">Net Profit</td>
+                          <td className="py-3 px-4 text-sm text-right font-semibold text-[#718096]">{formatCurrency(convertToOriginalPeriod(results.baseline.netIncome, results.detailedInputs.timePeriod))}</td>
+                          <td className={`py-3 px-4 text-sm text-right font-semibold ${results.adjusted.netIncome >= 0 ? 'text-[#2B6CB0]' : 'text-red-600'}`}>
+                            {formatCurrency(convertToOriginalPeriod(results.adjusted.netIncome, results.detailedInputs.timePeriod))}
+                          </td>
+                          <td className={`py-3 px-4 text-sm text-right font-semibold ${results.adjusted.netIncome >= results.baseline.netIncome ? 'text-green-600' : 'text-red-600'}`}>
+                            {results.adjusted.netIncome >= results.baseline.netIncome ? '+' : ''}{formatCurrency(convertToOriginalPeriod(results.adjusted.netIncome - results.baseline.netIncome, results.detailedInputs.timePeriod))}
+                          </td>
+                        </tr>
                       </>
                     ) : (
                       <>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">Revenue</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.revenue)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.revenue)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">COGS</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.cogs)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.cogs)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
                         <tr className="border-b border-gray-200">
                           <td className="py-3 px-4 text-sm text-[#1A202C]">Rent & Utilities</td>
                           <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.rentUtilities)}</td>
@@ -339,30 +393,30 @@ export default function ResultsPage() {
                           <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.taxesPayroll)}</td>
                           <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
                         </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">Custom Expenses</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.customExpenses)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.customExpenses)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-3 px-4 text-sm text-[#1A202C]">Goal Ongoing Cost</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(0)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.goalImpact.monthlyOngoingCost)}</td>
+                          <td className="py-3 px-4 text-sm text-right text-[#9F7AEA]">+{formatCurrency(results.goalImpact.monthlyOngoingCost)}</td>
+                        </tr>
+                        <tr className="border-b-2 border-gray-300">
+                          <td className="py-3 px-4 text-sm font-semibold text-[#1A202C]">Net Profit</td>
+                          <td className="py-3 px-4 text-sm text-right font-semibold text-[#718096]">{formatCurrency(results.baseline.netIncome)}</td>
+                          <td className={`py-3 px-4 text-sm text-right font-semibold ${results.adjusted.netIncome >= 0 ? 'text-[#2B6CB0]' : 'text-red-600'}`}>
+                            {formatCurrency(results.adjusted.netIncome)}
+                          </td>
+                          <td className={`py-3 px-4 text-sm text-right font-semibold ${results.adjusted.netIncome >= results.baseline.netIncome ? 'text-green-600' : 'text-red-600'}`}>
+                            {results.adjusted.netIncome >= results.baseline.netIncome ? '+' : ''}{formatCurrency(results.adjusted.netIncome - results.baseline.netIncome)}
+                          </td>
+                        </tr>
                       </>
                     )}
-                    <tr className="border-b border-gray-200">
-                      <td className="py-3 px-4 text-sm text-[#1A202C]">Custom Expenses</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(results.inputs.customExpenses)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.inputs.customExpenses)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">-</td>
-                    </tr>
-                    <tr className="border-b border-gray-200">
-                      <td className="py-3 px-4 text-sm text-[#1A202C]">Goal Ongoing Cost</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#718096]">{formatCurrency(0)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#1A202C]">{formatCurrency(results.goalImpact.monthlyOngoingCost)}</td>
-                      <td className="py-3 px-4 text-sm text-right text-[#9F7AEA]">+{formatCurrency(results.goalImpact.monthlyOngoingCost)}</td>
-                    </tr>
-                    <tr className="border-b-2 border-gray-300">
-                      <td className="py-3 px-4 text-sm font-semibold text-[#1A202C]">Net Profit</td>
-                      <td className="py-3 px-4 text-sm text-right font-semibold text-[#718096]">{formatCurrency(results.baseline.netIncome)}</td>
-                      <td className={`py-3 px-4 text-sm text-right font-semibold ${results.adjusted.netIncome >= 0 ? 'text-[#2B6CB0]' : 'text-red-600'}`}>
-                        {formatCurrency(results.adjusted.netIncome)}
-                      </td>
-                      <td className={`py-3 px-4 text-sm text-right font-semibold ${results.adjusted.netIncome >= results.baseline.netIncome ? 'text-green-600' : 'text-red-600'}`}>
-                        {results.adjusted.netIncome >= results.baseline.netIncome ? '+' : ''}{formatCurrency(results.adjusted.netIncome - results.baseline.netIncome)}
-                      </td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -375,8 +429,16 @@ export default function ResultsPage() {
                     <p className="text-sm font-semibold text-[#1A202C]">{formatCurrency(results.goalImpact.upfrontCost)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[#718096] mb-1">Monthly Ongoing</p>
-                    <p className="text-sm font-semibold text-[#1A202C]">{formatCurrency(results.goalImpact.monthlyOngoingCost)}</p>
+                    <p className="text-xs text-[#718096] mb-1">
+                      {results.detailedInputs ? 
+                        `${results.detailedInputs.timePeriod.charAt(0).toUpperCase() + results.detailedInputs.timePeriod.slice(1)} Ongoing` : 
+                        'Monthly Ongoing'}
+                    </p>
+                    <p className="text-sm font-semibold text-[#1A202C]">
+                      {results.detailedInputs ? 
+                        formatCurrency(convertToOriginalPeriod(results.goalImpact.monthlyOngoingCost, results.detailedInputs.timePeriod)) :
+                        formatCurrency(results.goalImpact.monthlyOngoingCost)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-[#718096] mb-1">Total Over {results.goal.goalTimeline} months</p>
@@ -386,7 +448,7 @@ export default function ResultsPage() {
                 {results.detailedInputs && (
                   <div className="mt-4 pt-4 border-t border-purple-200">
                     <p className="text-xs text-[#718096]">
-                      Analysis based on <span className="font-semibold text-[#1A202C]">{results.detailedInputs.timePeriod}</span> financial data
+                      Analysis based on <span className="font-semibold text-[#1A202C]">{results.detailedInputs.timePeriod}</span> financial data for <span className="font-semibold text-[#1A202C]">{results.periodInfo?.periodValue || 'selected period'}</span>
                     </p>
                   </div>
                 )}
@@ -400,9 +462,10 @@ export default function ResultsPage() {
           {/* Revenue Projection Chart */}
           <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100">
             <RevenueProjectionChart 
-              currentRevenue={results.inputs.revenue}
+              currentRevenue={results.detailedInputs ? results.detailedInputs.revenue : results.inputs.revenue}
               timeline={results.goal.goalTimeline}
               profitMargin={results.adjusted.netProfitMargin}
+              timePeriod={results.detailedInputs?.timePeriod}
             />
           </div>
 

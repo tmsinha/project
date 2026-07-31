@@ -386,7 +386,12 @@ export default function InputPage() {
         detailedInputs: currentPeriod.financialData,
         timeSeriesData,
         trends,
-        progress
+        progress,
+        periodInfo: {
+          id: currentPeriod.id,
+          periodType: currentPeriod.periodType,
+          periodValue: currentPeriod.periodValue
+        }
       })
 
       // Navigate to results page

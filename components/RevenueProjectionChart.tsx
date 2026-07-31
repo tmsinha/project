@@ -6,11 +6,24 @@ interface RevenueProjectionChartProps {
   currentRevenue: number
   timeline: number
   profitMargin: number
+  timePeriod?: 'monthly' | 'quarterly' | 'annually'
 }
 
-export default function RevenueProjectionChart({ currentRevenue, timeline, profitMargin }: RevenueProjectionChartProps) {
+export default function RevenueProjectionChart({ currentRevenue, timeline, profitMargin, timePeriod = 'monthly' }: RevenueProjectionChartProps) {
+  // Convert current revenue to monthly for calculations
+  const getMonthlyMultiplier = (period: 'monthly' | 'quarterly' | 'annually') => {
+    switch (period) {
+      case 'monthly': return 1
+      case 'quarterly': return 1/3
+      case 'annually': return 1/12
+      default: return 1
+    }
+  }
+
+  const monthlyRevenue = currentRevenue * getMonthlyMultiplier(timePeriod)
+  
   // Calculate profitability threshold (revenue needed to maintain current profit margin)
-  const totalExpenses = currentRevenue * (1 - Math.abs(profitMargin) / 100)
+  const totalExpenses = monthlyRevenue * (1 - Math.abs(profitMargin) / 100)
   const profitabilityThreshold = totalExpenses / (1 - 0.05) // Assuming 5% minimum profit margin
 
   // Generate projection data
@@ -27,17 +40,29 @@ export default function RevenueProjectionChart({ currentRevenue, timeline, profi
       threshold: profitabilityThreshold
     }
 
-    // Calculate projections based on different growth rates
-    monthData.slowGrowth = currentRevenue * Math.pow(1 + growthRates.slow, month)
-    monthData.standardGrowth = currentRevenue * Math.pow(1 + growthRates.standard, month)
-    monthData.highGrowth = currentRevenue * Math.pow(1 + growthRates.high, month)
+    // Calculate projections based on different growth rates (monthly)
+    const slowGrowthMonthly = monthlyRevenue * Math.pow(1 + growthRates.slow, month)
+    const standardGrowthMonthly = monthlyRevenue * Math.pow(1 + growthRates.standard, month)
+    const highGrowthMonthly = monthlyRevenue * Math.pow(1 + growthRates.high, month)
+
+    // Convert back to original time period for display
+    const multiplier = 1 / getMonthlyMultiplier(timePeriod)
+    monthData.slowGrowth = slowGrowthMonthly * multiplier
+    monthData.standardGrowth = standardGrowthMonthly * multiplier
+    monthData.highGrowth = highGrowthMonthly * multiplier
+    monthData.threshold = profitabilityThreshold * multiplier
 
     data.push(monthData)
   }
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold text-[#1A202C] mb-4">Revenue Projection Over Time</h3>
+      <h3 className="text-lg font-semibold text-[#1A202C] mb-4">
+        Revenue Projection Over Time 
+        <span className="text-sm font-normal text-[#718096] ml-2">
+          ({timePeriod.charAt(0).toUpperCase() + timePeriod.slice(1)} basis)
+        </span>
+      </h3>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />

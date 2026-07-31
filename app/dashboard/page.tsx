@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { formatCurrency, formatPercentage } from '@/lib/financialCalculator'
+import { formatCurrency, formatPercentage, getTimePeriodMultiplier } from '@/lib/financialCalculator'
 import type { AdjustedFinancials } from '@/lib/financialCalculator'
 import { getFinancialResults, getCurrentUserEmail, getUserName } from '@/lib/storage'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [results, setResults] = useState<AdjustedFinancials & { advice: string[]; inputs: any; goal: any } | null>(null)
+  const [results, setResults] = useState<AdjustedFinancials & { advice: string[]; inputs: any; goal: any; detailedInputs?: any; periodInfo?: any } | null>(null)
   const [loading, setLoading] = useState(true)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userName, setUserName] = useState<string | null>(null)
@@ -43,6 +43,12 @@ export default function DashboardPage() {
     }
   }
 
+  // Helper function to convert normalized monthly values back to original time period
+  const convertToOriginalPeriod = (monthlyValue: number, timePeriod: string) => {
+    const multiplier = getTimePeriodMultiplier(timePeriod as 'monthly' | 'quarterly' | 'annually')
+    return monthlyValue / multiplier
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
       {/* Decorative background elements */}
@@ -73,8 +79,13 @@ export default function DashboardPage() {
                     <span className="text-white">$</span>
                   </div>
                 </div>
-                <p className="text-2xl font-bold text-[#1A202C]">{formatCurrency(results.inputs.revenue)}</p>
-                <p className="text-sm text-[#718096] mt-1">Monthly revenue</p>
+                <p className="text-2xl font-bold text-[#1A202C]">{formatCurrency(results.detailedInputs ? results.detailedInputs.revenue : results.inputs.revenue)}</p>
+                <p className="text-sm text-[#718096] mt-1">
+                  {results.detailedInputs ? 
+                    `${results.detailedInputs.timePeriod.charAt(0).toUpperCase() + results.detailedInputs.timePeriod.slice(1)} revenue` : 
+                    'Monthly revenue'}
+                  {results.periodInfo && ` (${results.periodInfo.periodValue})`}
+                </p>
               </div>
 
               <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
@@ -85,9 +96,14 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <p className={`text-2xl font-bold ${results.adjusted.netIncome >= 0 ? 'text-[#2B6CB0]' : 'text-red-600'}`}>
-                  {formatCurrency(results.adjusted.netIncome)}
+                  {results.detailedInputs ? 
+                    formatCurrency(convertToOriginalPeriod(results.adjusted.netIncome, results.detailedInputs.timePeriod)) :
+                    formatCurrency(results.adjusted.netIncome)}
                 </p>
-                <p className="text-sm text-[#718096] mt-1">After goal adjustments</p>
+                <p className="text-sm text-[#718096] mt-1">
+                  After goal adjustments
+                  {results.detailedInputs && ` (${results.detailedInputs.timePeriod.charAt(0).toUpperCase() + results.detailedInputs.timePeriod.slice(1)})`}
+                </p>
               </div>
 
               <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
