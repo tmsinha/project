@@ -69,7 +69,7 @@ export default function Home() {
           {/* CTA Button */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/login"
+              href="/signup"
               className="px-8 py-4 bg-gradient-to-r from-[#2B6CB0] to-[#4299E1] text-white font-semibold rounded-lg hover:from-[#2C5282] hover:to-[#3182CE] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-500/30 text-lg transform hover:scale-105"
             >
               Get Started
@@ -78,7 +78,7 @@ export default function Home() {
               href="/login"
               className="px-8 py-4 border-2 border-[#2B6CB0] text-[#2B6CB0] font-semibold rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 text-lg"
             >
-              Learn More
+              Log In
             </Link>
           </div>
 

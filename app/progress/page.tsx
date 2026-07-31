@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency, formatPercentage } from '@/lib/financialCalculator'
 import type { AdjustedFinancials } from '@/lib/financialCalculator'
+import { getFinancialResults, setFinancialResults } from '@/lib/storage'
 
 interface ProgressData {
   goal: {
@@ -47,16 +48,11 @@ export default function ProgressPage() {
   const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
-    // Load progress data from sessionStorage or initialize with sample data
-    const storedResults = sessionStorage.getItem('financialResults')
+    // Load progress data from localStorage or initialize with sample data
+    const storedResults = getFinancialResults()
     if (storedResults) {
-      try {
-        const results = JSON.parse(storedResults)
-        const progress = generateProgressData(results)
-        setProgressData(progress)
-      } catch (err) {
-        console.error('Failed to parse stored results:', err)
-      }
+      const progress = generateProgressData(storedResults)
+      setProgressData(progress)
     } else {
       // Generate sample progress data for demonstration
       setProgressData(generateSampleProgressData())
@@ -191,12 +187,11 @@ export default function ProgressPage() {
         }
       })
 
-      // Update sessionStorage with new goal
-      const storedResults = sessionStorage.getItem('financialResults')
+      // Update localStorage with new goal
+      const storedResults = getFinancialResults()
       if (storedResults) {
-        const results = JSON.parse(storedResults)
-        results.goal = updatedGoal
-        sessionStorage.setItem('financialResults', JSON.stringify(results))
+        storedResults.goal = updatedGoal
+        setFinancialResults(storedResults)
       }
 
       setShowGoalModal(false)

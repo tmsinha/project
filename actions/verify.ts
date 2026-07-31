@@ -34,11 +34,11 @@ export async function verifyAction(prevState: any, formData: FormData) {
     
     console.log('Code marked as used, session set, redirecting to dashboard')
     
+    // Return success with email for client-side storage
+    return { success: true, email }
+    
   } catch (error) {
     console.error('Verification error:', error)
     return { error: 'Verification failed. Please try again.' }
   }
-
-  // Redirect outside try-catch to avoid catching the redirect error
-  redirect('/dashboard')
 }

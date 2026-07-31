@@ -1,26 +1,47 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { formatCurrency, formatPercentage } from '@/lib/financialCalculator'
 import type { AdjustedFinancials } from '@/lib/financialCalculator'
+import { getFinancialResults, getCurrentUserEmail } from '@/lib/storage'
 
 export default function DashboardPage() {
+  const router = useRouter()
   const [results, setResults] = useState<AdjustedFinancials & { advice: string[]; inputs: any; goal: any } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
-    // Check for stored results
-    const storedResults = sessionStorage.getItem('financialResults')
-    if (storedResults) {
+    const loadUserData = async () => {
+      // Get current user email
+      const email = await getCurrentUserEmail()
+      setUserEmail(email)
+      
+      // Check if user has password set
       try {
-        setResults(JSON.parse(storedResults))
-      } catch (err) {
-        console.error('Failed to parse stored results:', err)
+        const response = await fetch('/api/check-password')
+        const data = await response.json()
+        
+        if (data.requiresPassword) {
+          router.push('/set-password')
+          return
+        }
+      } catch (error) {
+        console.error('Error checking password status:', error)
       }
+      
+      // Check for stored results
+      const storedResults = getFinancialResults()
+      if (storedResults) {
+        setResults(storedResults)
+      }
+      setLoading(false)
     }
-    setLoading(false)
-  }, [])
+    
+    loadUserData()
+  }, [router])
 
   const getRiskColor = (level: string) => {
     switch (level) {

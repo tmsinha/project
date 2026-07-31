@@ -1,59 +1,18 @@
 'use client'
 
-import { useActionState } from 'react'
-import { verifyAction } from '@/actions/verify'
+import { useActionState, Suspense } from 'react'
+import { sendCodeAction } from '@/actions/send-code'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Suspense, useEffect } from 'react'
-import { setUserEmail } from '@/lib/storage'
 
 const initialState = {
   error: ''
 }
 
-function VerifyForm() {
-  const searchParams = useSearchParams()
+function ForgotPasswordForm() {
+  const [state, formAction, pending] = useActionState(sendCodeAction, initialState)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const email = searchParams.get('email') || ''
-  const code = searchParams.get('code') || ''
-  const isSignup = searchParams.get('signup') === 'true'
-  const [state, formAction, pending] = useActionState(verifyAction, initialState)
-
-  // Handle successful verification
-  useEffect(() => {
-    if (state.success && state.email) {
-      setUserEmail(state.email)
-      
-      if (isSignup) {
-        // For signup, get password from sessionStorage and complete account setup
-        const signupPassword = sessionStorage.getItem('signupPassword')
-        if (signupPassword) {
-          // Import and call setPasswordAction directly
-          import('@/actions/set-password').then(({ setPasswordAction }) => {
-            const formData = new FormData()
-            formData.append('email', state.email)
-            formData.append('password', signupPassword)
-            formData.append('confirmPassword', signupPassword)
-            
-            setPasswordAction(null, formData).then((result) => {
-              sessionStorage.removeItem('signupPassword')
-              if (result.success) {
-                router.push('/dashboard')
-              } else {
-                // If password setup fails, redirect to set-password page
-                router.push(`/set-password?email=${encodeURIComponent(state.email)}`)
-              }
-            })
-          })
-        } else {
-          // Fallback to set-password page
-          router.push(`/set-password?email=${encodeURIComponent(state.email)}`)
-        }
-      } else {
-        // For forgot password flow, redirect to dashboard
-        router.push('/dashboard')
-      }
-    }
-  }, [state, router, isSignup])
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen relative overflow-hidden">
@@ -66,38 +25,43 @@ function VerifyForm() {
 
       <main className="flex flex-col w-full max-w-md items-center justify-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 relative z-10">
         <div className="flex flex-col items-center gap-6 text-center w-full mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#2B6CB0] to-[#4299E1] rounded-full flex items-center justify-center mb-2 shadow-lg animate-float">
+          <div className="w-16 h-16 bg-gradient-to-br from-[#2B6CB0] to-[#4299E1] rounded-full flex items-center justify-center mb-2 shadow-lg shadow-blue-500/30 animate-float">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
           <h1 className="text-3xl font-bold leading-10 tracking-tight text-[#1A202C]">
-            {isSignup ? 'Complete Your Sign Up' : 'Verify Your Email'}
+            Forgot Password?
           </h1>
           <p className="text-lg leading-8 text-[#718096]">
-            Enter the 6-digit code sent to <span className="font-semibold text-[#2B6CB0]">{email}</span>
-          </p>
-          <p className="text-sm text-[#718096]">
-            {isSignup ? 'After verification, your account will be created with your chosen password' : 'After verification, you\'ll be logged in to your account'}
+            Enter your email to receive a login code
           </p>
         </div>
         
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-[#2B6CB0] rounded-lg p-4 mb-6 w-full">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-[#2B6CB0] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-[#1A202C]">
+              We'll send a 6-digit code to your email. You can use this code to log in to your account.
+            </p>
+          </div>
+        </div>
+        
         <form action={formAction} className="flex flex-col gap-4 w-full">
-          <input type="hidden" name="email" value={email} />
-          
           <div className="flex flex-col gap-2">
-            <label htmlFor="code" className="text-sm font-semibold text-[#1A202C]">
-              Verification Code
+            <label htmlFor="email" className="text-sm font-semibold text-[#1A202C]">
+              Email Address
             </label>
             <input
-              type="text"
-              id="code"
-              name="code"
+              type="email"
+              id="email"
+              name="email"
               required
-              maxLength={6}
-              pattern="[0-9]{6}"
-              placeholder="123456"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all text-center text-2xl tracking-widest shadow-sm"
+              defaultValue={email}
+              placeholder="you@example.com"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
             />
           </div>
           
@@ -119,18 +83,18 @@ function VerifyForm() {
           >
             {pending ? (
               <>
-                <svg className="h-5 w-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 text-white" style={{ animation: 'spin 1s linear infinite' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Verifying...
+                Sending Code...
               </>
             ) : (
               <>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                Verify Code
+                Send Login Code
               </>
             )}
           </button>
@@ -143,21 +107,12 @@ function VerifyForm() {
             Back to Login
           </button>
         </form>
-        
-        <div className="mt-6 text-center text-sm text-[#718096]">
-          <div className="flex items-center justify-center gap-2">
-            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <p>Secure, passwordless authentication powered by Val</p>
-          </div>
-        </div>
       </main>
     </div>
   )
 }
 
-export default function VerifyPage() {
+export default function ForgotPasswordPage() {
   return (
     <Suspense fallback={
       <div className="flex flex-col flex-1 items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen relative overflow-hidden">
@@ -175,7 +130,7 @@ export default function VerifyPage() {
         </main>
       </div>
     }>
-      <VerifyForm />
+      <ForgotPasswordForm />
     </Suspense>
   )
 }

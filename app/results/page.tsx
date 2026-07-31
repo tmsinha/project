@@ -7,6 +7,7 @@ import type { AdjustedFinancials } from '@/lib/financialCalculator'
 import RevenueProjectionChart from '@/components/RevenueProjectionChart'
 import ExpenseBreakdownChart from '@/components/ExpenseBreakdownChart'
 import GoalAchievementInsights from '@/components/GoalAchievementInsights'
+import { getFinancialResults } from '@/lib/storage'
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -14,15 +15,10 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Retrieve results from sessionStorage
-    const storedResults = sessionStorage.getItem('financialResults')
+    // Retrieve results from localStorage
+    const storedResults = getFinancialResults()
     if (storedResults) {
-      try {
-        setResults(JSON.parse(storedResults))
-      } catch (err) {
-        console.error('Failed to parse stored results:', err)
-        router.push('/input')
-      }
+      setResults(storedResults)
     } else {
       // No results found, redirect to input page
       router.push('/input')

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { analyzeFinancialImage, FinancialData } from '@/lib/imageAnalyzer'
 import IllustratedLoader from '@/components/IllustratedLoader'
 import ErrorBanner from '@/components/ErrorBanner'
+import { setFinancialResults } from '@/lib/storage'
 import { 
   FinancialInputs, 
   DetailedFinancialInputs,
@@ -376,8 +377,8 @@ export default function InputPage() {
       const trends = analyzeTimeSeriesTrends(timeSeriesData)
       const progress = calculateGoalProgress(timeSeriesData, goalInputs)
 
-      // Store results in sessionStorage for the results page
-      sessionStorage.setItem('financialResults', JSON.stringify({
+      // Store results in localStorage for the results page
+      setFinancialResults({
         ...results,
         advice,
         inputs: normalizedInputs,
@@ -386,7 +387,7 @@ export default function InputPage() {
         timeSeriesData,
         trends,
         progress
-      }))
+      })
 
       // Navigate to results page
       router.push('/results')

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Merriweather } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import AuthSync from "@/components/AuthSync";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,6 +33,7 @@ export default function RootLayout({
       className={`${inter.variable} ${merriweather.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <AuthSync />
         <Navigation />
         <main className="flex-1">{children}</main>
       </body>
