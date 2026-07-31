@@ -84,7 +84,46 @@ export function clearAllUserData(): void {
         localStorage.removeItem(key)
       }
     })
+    // Also clear user-specific input data
+    localStorage.removeItem(`savedInputData_${userEmail}`)
   }
   clearUserEmail()
   localStorage.removeItem('userName')
+}
+
+// Input data persistence functions
+export function saveInputData(inputData: any): void {
+  const userEmail = localStorage.getItem('userEmail')
+  const key = userEmail ? `savedInputData_${userEmail}` : 'savedInputData'
+  localStorage.setItem(key, JSON.stringify(inputData))
+}
+
+export function loadInputData(): any | null {
+  const userEmail = localStorage.getItem('userEmail')
+  const key = userEmail ? `savedInputData_${userEmail}` : 'savedInputData'
+  let savedData = localStorage.getItem(key)
+  
+  // For backward compatibility, also check the old key
+  if (!savedData && userEmail) {
+    savedData = localStorage.getItem('savedInputData')
+  }
+  
+  if (savedData) {
+    try {
+      return JSON.parse(savedData)
+    } catch (error) {
+      console.error('Error parsing saved input data:', error)
+      return null
+    }
+  }
+  return null
+}
+
+export function clearInputData(): void {
+  const userEmail = localStorage.getItem('userEmail')
+  const key = userEmail ? `savedInputData_${userEmail}` : 'savedInputData'
+  localStorage.removeItem(key)
+  
+  // Also clear the non-user-specific key for backward compatibility
+  localStorage.removeItem('savedInputData')
 }

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { analyzeFinancialImage, FinancialData } from '@/lib/imageAnalyzer'
 import IllustratedLoader from '@/components/IllustratedLoader'
 import ErrorBanner from '@/components/ErrorBanner'
-import { setFinancialResults } from '@/lib/storage'
+import { setFinancialResults, saveInputData, loadInputData, clearInputData } from '@/lib/storage'
 import { 
   FinancialInputs, 
   DetailedFinancialInputs,
@@ -71,6 +71,39 @@ export default function InputPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [analysisResult, setAnalysisResult] = useState<FinancialData | null>(null)
+  const [showSavedIndicator, setShowSavedIndicator] = useState(false)
+
+  // Load saved data on mount
+  useEffect(() => {
+    const savedData = loadInputData()
+    if (savedData) {
+      if (savedData.periods && savedData.periods.length > 0) {
+        setPeriods(savedData.periods)
+        setCurrentPeriodId(savedData.currentPeriodId || savedData.periods[0].id)
+        setShowSavedIndicator(true)
+        setTimeout(() => setShowSavedIndicator(false), 3000)
+      }
+      if (savedData.goalType) setGoalType(savedData.goalType)
+      if (savedData.goalAmount) setGoalAmount(savedData.goalAmount)
+      if (savedData.goalTimeline) setGoalTimeline(savedData.goalTimeline)
+      if (savedData.customGoal) setCustomGoal(savedData.customGoal)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Auto-save data whenever it changes
+  useEffect(() => {
+    const inputData = {
+      periods,
+      currentPeriodId,
+      goalType,
+      goalAmount,
+      goalTimeline,
+      customGoal
+    }
+    saveInputData(inputData)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [periods, currentPeriodId, goalType, goalAmount, goalTimeline, customGoal])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -402,6 +435,40 @@ export default function InputPage() {
     }
   }
 
+  const handleClearData = () => {
+    // Reset to default state
+    setPeriods([
+      {
+        id: '1',
+        periodType: 'month',
+        periodValue: 'January 2024',
+        revenue: '',
+        cogs: '',
+        rent: '',
+        utilities: '',
+        otherFacilityCosts: '',
+        numberOfEmployees: '',
+        personalSalary: '',
+        otherPayrollExpenses: '',
+        taxes: '',
+        customExpenses: '',
+        cashReserves: '',
+        timePeriod: 'monthly'
+      }
+    ])
+    setCurrentPeriodId('1')
+    setGoalType('')
+    setGoalAmount('')
+    setGoalTimeline('')
+    setCustomGoal('')
+    setError(null)
+    setFile(null)
+    setAnalysisResult(null)
+    
+    // Clear from localStorage
+    clearInputData()
+  }
+
   const currentPeriod = periods.find(p => p.id === currentPeriodId) || periods[0]
 
   return (
@@ -426,8 +493,17 @@ export default function InputPage() {
       
       <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Input Financial Data</h1>
-          <p className="text-[#718096]">Enter your business financial information across multiple time periods and set your goals</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Input Financial Data</h1>
+              <p className="text-[#718096]">Enter your business financial information across multiple time periods and set your goals</p>
+            </div>
+            {showSavedIndicator && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm font-medium">
+                ✓ Data restored from previous session
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Period Selector */}
@@ -466,6 +542,12 @@ export default function InputPage() {
                   Remove Period
                 </button>
               )}
+              <button
+                onClick={handleClearData}
+                className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg text-sm transform hover:scale-105"
+                >
+                Clear All Data
+              </button>
             </div>
           </div>
         </div>
