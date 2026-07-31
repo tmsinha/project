@@ -3,7 +3,6 @@
 import { useActionState, useEffect, useState, Suspense } from 'react'
 import { loginAction } from '@/actions/login'
 import { useRouter } from 'next/navigation'
-import { setUserEmail } from '@/lib/storage'
 
 const initialState = {
   error: ''
@@ -12,6 +11,7 @@ const initialState = {
 function SignUpForm() {
   const [state, formAction, pending] = useActionState(loginAction, initialState)
   const router = useRouter()
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [clientError, setClientError] = useState('')
@@ -28,27 +28,22 @@ function SignUpForm() {
     }
   }, [state, router, password])
 
-  const validatePassword = (pwd: string) => {
-    if (pwd.length < 8) return 'Password must be at least 8 characters long'
-    if (!/[A-Z]/.test(pwd)) return 'Password must contain at least one uppercase letter'
-    if (!/[a-z]/.test(pwd)) return 'Password must contain at least one lowercase letter'
-    if (!/[0-9]/.test(pwd)) return 'Password must contain at least one number'
-    return ''
-  }
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     setClientError('')
+
+    const validatePassword = (pwd: string) => {
+      if (pwd.length < 8) return 'Password must be at least 8 characters long'
+      if (!/[A-Z]/.test(pwd)) return 'Password must contain at least one uppercase letter'
+      if (!/[a-z]/.test(pwd)) return 'Password must contain at least one lowercase letter'
+      if (!/[0-9]/.test(pwd)) return 'Password must contain at least one number'
+      return ''
+    }
 
     const passwordError = validatePassword(password)
     if (passwordError) {
       setClientError(passwordError)
       e.preventDefault()
       return
-    }
-    
-    // Store password in sessionStorage for verification page
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('signupPassword', password)
     }
     
     // Let the form submit naturally
@@ -108,6 +103,8 @@ function SignUpForm() {
               name="email"
               required
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm"
             />
           </div>
@@ -121,10 +118,9 @@ function SignUpForm() {
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-[#1A202C] focus:outline-none focus:ring-2 focus:ring-[#2B6CB0] focus:border-transparent transition-all shadow-sm pr-12"
               />
               <button
