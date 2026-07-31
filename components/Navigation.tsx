@@ -83,6 +83,7 @@ export default function Navigation() {
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/input', label: 'Input Data' },
     { href: '/results', label: 'Results & Goals' },
+    { href: '/qa', label: 'Q&A' },
     { href: '/progress', label: 'Progress' },
   ]
 

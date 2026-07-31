@@ -25,7 +25,7 @@ export default function Home() {
           {/* Headline */}
           <h1 className="text-5xl md:text-6xl font-bold text-[#1A202C] mb-6 leading-tight">
             Smart Financial Planning for <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2B6CB0] to-[#9F7AEA]">Small Business Owners</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2B6CB0] to-[#9F7AEA]">Business Owners</span>
           </h1>
 
           {/* Subheadline */}
@@ -89,7 +89,7 @@ export default function Home() {
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white"></div>
             </div>
-            <p>Trusted by small business owners for financial clarity</p>
+            <p>Trusted by business owners for financial clarity</p>
           </div>
         </div>
       </main>

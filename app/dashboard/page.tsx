@@ -206,6 +206,12 @@ export default function DashboardPage() {
                 Update Financial Data
               </Link>
               <Link
+                href="/qa"
+                className="px-6 py-3 border-2 border-[#9F7AEA] text-[#9F7AEA] font-semibold rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all"
+              >
+                Ask Financial Questions
+              </Link>
+              <Link
                 href="/results"
                 className="px-6 py-3 border-2 border-[#2B6CB0] text-[#2B6CB0] font-semibold rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all"
               >
