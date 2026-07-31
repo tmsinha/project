@@ -42,7 +42,7 @@ export async function loginAction(prevState: any, formData: FormData) {
       
       console.log(`Password login successful for ${email}`)
       
-      return { success: true, email, method: 'password' }
+      return { success: true, email, method: 'password', name: user.name }
     }
     
     // Signup flow - send verification code
@@ -66,8 +66,9 @@ export async function loginAction(prevState: any, formData: FormData) {
       // Set expiration to 15 minutes from now
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
 
-      // Store in database with password
-      await createOrUpdateUser(email, hashedPassword)
+      // Store in database with password and generated name
+      const userName = email.split('@')[0]
+      await createOrUpdateUser(email, hashedPassword, userName)
       await createVerificationCode(email, code, expiresAt)
       
       console.log(`Signup code generated for ${email}: ${code}`)
@@ -96,7 +97,7 @@ export async function loginAction(prevState: any, formData: FormData) {
         // Continue with the flow even if email fails (for development)
       }
       
-      return { success: true, email, method: 'code' }
+      return { success: true, email, method: 'code', name: userName }
     }
     
     // Code-based login (forgot password flow)
@@ -108,7 +109,9 @@ export async function loginAction(prevState: any, formData: FormData) {
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
 
       // Store in database
-      await createOrUpdateUser(email)
+      const existingUser = await getUserByEmail(email)
+      const userName = existingUser?.name || email.split('@')[0]
+      await createOrUpdateUser(email, undefined, userName)
       await createVerificationCode(email, code, expiresAt)
       
       console.log(`Login code generated for ${email}: ${code}`)

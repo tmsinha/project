@@ -5,19 +5,22 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatCurrency, formatPercentage } from '@/lib/financialCalculator'
 import type { AdjustedFinancials } from '@/lib/financialCalculator'
-import { getFinancialResults, getCurrentUserEmail } from '@/lib/storage'
+import { getFinancialResults, getCurrentUserEmail, getUserName } from '@/lib/storage'
 
 export default function DashboardPage() {
   const router = useRouter()
   const [results, setResults] = useState<AdjustedFinancials & { advice: string[]; inputs: any; goal: any } | null>(null)
   const [loading, setLoading] = useState(true)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
 
   useEffect(() => {
     const loadUserData = async () => {
-      // Get current user email
+      // Get current user email and name
       const email = await getCurrentUserEmail()
+      const name = getUserName()
       setUserEmail(email)
+      setUserName(name)
       
       // Check for stored results
       const storedResults = getFinancialResults()
@@ -52,7 +55,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#1A202C] mb-2">Dashboard</h1>
-          <p className="text-[#718096]">Manage your business finances and financial planning</p>
+          <p className="text-[#718096]">Welcome back, {userName || userEmail?.split('@')[0] || 'User'}! Manage your business finances and financial planning</p>
         </div>
 
         {loading ? (

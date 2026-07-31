@@ -17,6 +17,7 @@ export async function getCurrentUserEmail(): Promise<string | null> {
       const data = await response.json()
       if (data.email) {
         localStorage.setItem('userEmail', data.email)
+        localStorage.setItem('userName', data.name || data.email.split('@')[0])
         return data.email
       }
     }
@@ -37,8 +38,17 @@ export function setUserEmail(email: string): void {
   localStorage.setItem('userEmail', email)
 }
 
+export function setUserName(name: string): void {
+  localStorage.setItem('userName', name)
+}
+
+export function getUserName(): string | null {
+  return localStorage.getItem('userName')
+}
+
 export function clearUserEmail(): void {
   localStorage.removeItem('userEmail')
+  localStorage.removeItem('userName')
 }
 
 export function setFinancialResults(results: any): void {
@@ -76,4 +86,5 @@ export function clearAllUserData(): void {
     })
   }
   clearUserEmail()
+  localStorage.removeItem('userName')
 }

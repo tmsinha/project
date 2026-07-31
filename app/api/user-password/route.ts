@@ -20,7 +20,8 @@ export async function GET() {
     return NextResponse.json({ 
       hasPassword: !!user.password,
       maskedPassword: '••••••••',
-      email 
+      email,
+      name: user.name
     })
   } catch (error) {
     console.error('Error fetching user password:', error)

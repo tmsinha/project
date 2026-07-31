@@ -4,7 +4,7 @@ import { useActionState } from 'react'
 import { verifyAction } from '@/actions/verify'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Suspense, useEffect } from 'react'
-import { setUserEmail } from '@/lib/storage'
+import { setUserEmail, setUserName } from '@/lib/storage'
 
 const initialState = {
   error: ''
@@ -21,6 +21,19 @@ function VerifyForm() {
   useEffect(() => {
     if (state.success && state.email) {
       setUserEmail(state.email)
+      // Store user name from state or fetch from server
+      if (state.name) {
+        setUserName(state.name)
+      } else {
+        fetch('/api/user')
+          .then(res => res.json())
+          .then(data => {
+            if (data.name) {
+              setUserName(data.name)
+            }
+          })
+          .catch(err => console.error('Error fetching user name:', err))
+      }
       // Redirect to dashboard (password is already stored during signup)
       router.push('/dashboard')
     }

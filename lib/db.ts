@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 // In-memory storage for development (won't persist across server restarts)
 // For production, this should be replaced with a proper database
 let verificationCodes: Map<string, { code: string; expiresAt: Date; used: boolean }> = new Map()
-let users: Map<string, { email: string; password?: string }> = new Map()
+let users: Map<string, { email: string; name: string; password?: string }> = new Map()
 
 export async function createVerificationCode(email: string, code: string, expiresAt: Date): Promise<void> {
   verificationCodes.set(`${email}_${code}`, {
@@ -48,19 +48,24 @@ export async function markVerificationCodeUsed(id: string): Promise<void> {
   }
 }
 
-export async function createOrUpdateUser(email: string, password?: string): Promise<void> {
+export async function createOrUpdateUser(email: string, password?: string, name?: string): Promise<void> {
   const existingUser = users.get(email)
   if (existingUser) {
     if (password) {
       existingUser.password = password
     }
+    if (name) {
+      existingUser.name = name
+    }
   } else {
-    users.set(email, { email, password })
+    // Generate a name from email if not provided
+    const userName = name || email.split('@')[0]
+    users.set(email, { email, name: userName, password })
   }
   console.log(`User created/updated: ${email}`)
 }
 
-export async function getUserByEmail(email: string): Promise<{ email: string; password?: string } | null> {
+export async function getUserByEmail(email: string): Promise<{ email: string; name: string; password?: string } | null> {
   return users.get(email) || null
 }
 

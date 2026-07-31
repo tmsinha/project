@@ -4,6 +4,7 @@ import { useActionState, useState, useEffect } from 'react'
 import { loginAction } from '@/actions/login'
 import { sendCodeAction } from '@/actions/send-code'
 import { useRouter } from 'next/navigation'
+import { setUserEmail, setUserName } from '@/lib/storage'
 
 const initialState = {
   error: ''
@@ -19,6 +20,11 @@ export default function LoginPage() {
   // Handle successful password login
   useEffect(() => {
     if (state.success && state.method === 'password') {
+      // Store user data
+      setUserEmail(state.email)
+      if (state.name) {
+        setUserName(state.name)
+      }
       router.push('/dashboard')
     }
   }, [state, router])

@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { getValidVerificationCode, markVerificationCodeUsed, setAuthSession } from '@/lib/db'
+import { getValidVerificationCode, markVerificationCodeUsed, setAuthSession, getUserByEmail } from '@/lib/db'
 
 export async function verifyAction(prevState: any, formData: FormData) {
   const email = formData.get('email') as string
@@ -32,10 +32,13 @@ export async function verifyAction(prevState: any, formData: FormData) {
     // Set auth session
     await setAuthSession(email)
     
+    // Get user details to return name
+    const user = await getUserByEmail(email)
+    
     console.log('Code marked as used, session set, redirecting to dashboard')
     
-    // Return success with email for client-side storage
-    return { success: true, email }
+    // Return success with email and name for client-side storage
+    return { success: true, email, name: user?.name || email.split('@')[0] }
     
   } catch (error) {
     console.error('Verification error:', error)

@@ -2,24 +2,45 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { clearAllUserData, getCurrentUserEmail } from '@/lib/storage'
+import { clearAllUserData, getCurrentUserEmail, getUserName } from '@/lib/storage'
 import { useState, useEffect, useRef } from 'react'
 
 export default function Navigation() {
   const pathname = usePathname()
   const router = useRouter()
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
   const [showAccountMenu, setShowAccountMenu] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [userPassword, setUserPassword] = useState<string>('')
   const accountMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const loadUserEmail = async () => {
+    const loadUserData = async () => {
       const email = await getCurrentUserEmail()
       setUserEmail(email)
+      
+      // Try to get user name from localStorage first
+      const storedName = localStorage.getItem('userName')
+      if (storedName) {
+        setUserName(storedName)
+      } else {
+        // Fallback to server API
+        try {
+          const response = await fetch('/api/user')
+          if (response.ok) {
+            const data = await response.json()
+            if (data.name) {
+              setUserName(data.name)
+              localStorage.setItem('userName', data.name)
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user name:', error)
+        }
+      }
     }
-    loadUserEmail()
+    loadUserData()
   }, [])
 
   const handleShowPassword = async () => {
@@ -86,8 +107,11 @@ export default function Navigation() {
   }
 
   const getUserName = () => {
+    if (userName) {
+      return userName
+    }
     if (userEmail) {
-      // Get the part before @ as the "name"
+      // Fallback to email part before @
       return userEmail.split('@')[0]
     }
     return 'User'
@@ -159,6 +183,10 @@ export default function Navigation() {
                         Account Details
                       </label>
                       <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-[#1A202C]">Name:</span>
+                          <span className="text-sm text-[#718096]">{getUserName()}</span>
+                        </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-[#1A202C]">Email:</span>
                           <span className="text-sm text-[#718096]">{userEmail}</span>
