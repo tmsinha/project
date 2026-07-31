@@ -18,7 +18,7 @@ export default function Home() {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#2B6CB0] to-[#4299E1] flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:scale-105">
-              <span className="text-white font-bold text-4xl">B</span>
+              <span className="text-white font-bold text-5xl" style={{ fontFamily: 'Arial Black, Impact, sans-serif', fontWeight: '900', letterSpacing: '-2px' }}>V</span>
             </div>
           </div>
 
