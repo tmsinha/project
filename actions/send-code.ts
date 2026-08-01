@@ -24,8 +24,8 @@ export async function sendCodeAction(prevState: any, formData: FormData) {
     // Generate a 6-digit verification code
     const code = Math.floor(100000 + Math.random() * 900000).toString()
     
-    // Set expiration to 15 minutes from now
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
+    // Set expiration to 1 hour from now
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
 
     // Store in database
     await createVerificationCode(email, code, expiresAt)
@@ -45,7 +45,7 @@ export async function sendCodeAction(prevState: any, formData: FormData) {
             <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
               ${code}
             </div>
-            <p style="color: #666;">This code will expire in 15 minutes.</p>
+            <p style="color: #666;">This code will expire in 1 hour.</p>
             <p style="color: #666;">If you didn't request this code, please ignore this email.</p>
           </div>
         `,

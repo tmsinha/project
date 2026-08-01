@@ -1,6 +1,6 @@
 'use client'
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
 
 interface ExpenseBreakdownChartProps {
   detailedInputs?: {
@@ -54,27 +54,8 @@ export default function ExpenseBreakdownChart({
     ]
   }
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0]
-      const total = data.payload.payload.total
-      const percentage = ((data.value / total) * 100).toFixed(1)
-      
-      return (
-        <div className="bg-[#F7FAFC] p-3 rounded-lg border border-gray-200 shadow-lg">
-          <p className="font-semibold text-[#1A202C]">{data.name}</p>
-          <p className="text-sm text-[#718096]">
-            ${data.value.toFixed(2)} ({percentage}%)
-          </p>
-        </div>
-      )
-    }
-    return null
-  }
-
   // Calculate total for percentage calculations
   const total = data.reduce((sum, item) => sum + item.value, 0)
-  data.forEach(item => (item as any).total = total)
 
   // Filter out zero values for cleaner display
   const filteredData = data.filter(item => item.value > 0)
@@ -104,20 +85,16 @@ export default function ExpenseBreakdownChart({
             outerRadius={100}
             fill="#8884d8"
             dataKey="value"
+            isAnimationActive={false}
+            interactive={false}
           >
             {filteredData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip />} />
           <Legend 
             verticalAlign="bottom" 
             height={36}
-            formatter={(value, entry: any) => (
-              <span style={{ color: entry.color, fontSize: '12px' }}>
-                {value}
-              </span>
-            )}
           />
         </PieChart>
       </ResponsiveContainer>

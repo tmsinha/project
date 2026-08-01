@@ -67,17 +67,36 @@ export default function ProgressPage() {
     const targetDate = new Date()
     targetDate.setMonth(targetDate.getMonth() + goal.goalTimeline)
 
-    // Generate historical data
+    // Generate historical data using actual period values from input
     const historicalData = []
-    for (let i = 0; i < 4; i++) {
-      const date = new Date()
-      date.setMonth(date.getMonth() - (3 - i))
-      historicalData.push({
-        month: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
-        revenue: results.inputs.revenue * (0.9 + Math.random() * 0.2), // Some variation
-        netIncome: results.adjusted.netIncome * (0.8 + Math.random() * 0.4),
-        goalProgress: (goal.goalAmount * 0.25 * (i + 1)) // Linear progress
+    const periods = results.timeSeriesData?.periods || []
+    
+    if (periods.length > 0) {
+      // Use actual period data from input
+      periods.forEach((period: any, index: number) => {
+        historicalData.push({
+          month: period.periodValue,
+          revenue: period.financialData.revenue * (0.9 + Math.random() * 0.2), // Some variation
+          netIncome: (period.financialData.revenue - period.financialData.cogs - 
+                     period.financialData.rent - period.financialData.utilities - 
+                     period.financialData.otherFacilityCosts - period.financialData.personalSalary - 
+                     period.financialData.otherPayrollExpenses - period.financialData.taxes - 
+                     period.financialData.customExpenses) * (0.8 + Math.random() * 0.4),
+          goalProgress: (goal.goalAmount * ((index + 1) / periods.length)) // Linear progress
+        })
       })
+    } else {
+      // Fallback to generating relative months if no period data
+      for (let i = 0; i < 4; i++) {
+        const date = new Date()
+        date.setMonth(date.getMonth() - (3 - i))
+        historicalData.push({
+          month: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+          revenue: results.inputs.revenue * (0.9 + Math.random() * 0.2), // Some variation
+          netIncome: results.adjusted.netIncome * (0.8 + Math.random() * 0.4),
+          goalProgress: (goal.goalAmount * 0.25 * (i + 1)) // Linear progress
+        })
+      }
     }
 
     const currentAmount = historicalData[historicalData.length - 1].goalProgress
@@ -124,12 +143,19 @@ export default function ProgressPage() {
       targetDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString()
     }
 
-    const historicalData = [
-      { month: 'Oct 23', revenue: 45000, netIncome: 8500, goalProgress: 25000 },
-      { month: 'Nov 23', revenue: 47500, netIncome: 9200, goalProgress: 50000 },
-      { month: 'Dec 23', revenue: 49000, netIncome: 9800, goalProgress: 75000 },
-      { month: 'Jan 24', revenue: 52000, netIncome: 10500, goalProgress: 100000 }
-    ]
+    // Generate relative months based on current date
+    const historicalData = []
+    const now = new Date()
+    for (let i = 0; i < 4; i++) {
+      const date = new Date(now)
+      date.setMonth(date.getMonth() - (3 - i))
+      historicalData.push({
+        month: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+        revenue: 45000 + (i * 2500),
+        netIncome: 8500 + (i * 700),
+        goalProgress: 25000 * (i + 1)
+      })
+    }
 
     const currentAmount = 100000
     const percentageComplete = 66.67
